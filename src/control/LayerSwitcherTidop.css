@@ -530,3 +530,7 @@
   display: block;
   font-size: 0.9em;
 }
+
+input.ol-visibility.form-check-input.h-18px.w-18px {
+  margin-top: 0.22em !important;
+}

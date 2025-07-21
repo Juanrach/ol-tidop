@@ -794,7 +794,7 @@ var ol_control_LayerSwitcherTidop = class olcontrolLayerSwitcherTidop extends ol
       // Visibility
       var input = ol_ext_element.create('INPUT', {
         type: layer.get('baseLayer') ? 'radio' : 'checkbox',
-        className: 'ol-visibility',
+        className: 'ol-visibility form-check-input h-18px w-18px',
         checked: layer.getVisible(),
         click: function(e) {
           setVisibility.bind(this)(e)
@@ -900,11 +900,14 @@ var ol_control_LayerSwitcherTidop = class olcontrolLayerSwitcherTidop extends ol
       })
 
 
-      var extra_layer_data = ol_ext_element.create('DIV', {
-        className: 'extra-layer-data' + ' ' + layer.get('id') + '-extra-layer-data ',
-        parent: d,
-        //html: 'prueba'
-      })
+
+      if (layer.get('extra_layer_data')) {
+        var extra_layer_data = ol_ext_element.create('DIV', {
+          className: 'extra-layer-data' + ' ' + layer.get('id') + '-extra-layer-data ',
+          parent: d,
+          html: layer.get('extra_layer_data')
+        })
+      }
       
       //  up/down
       if (this.reordering) {

@@ -1,7 +1,7 @@
 /**
  * ol-usal-tidop - A set of cool extensions for OpenLayers (ol) in node modules structure
  * @description ol3,openlayers,popup,menu,symbol,renderer,filter,canvas,interaction,split,statistic,charts,pie,LayerSwitcher,toolbar,animation
- * @version v0.0.1
+ * @version v0.0.3
  * @author Juanrach
  * @see https://github.com/Juanrach/ol-usal-tidop#,
  * @license BSD-3-Clause
@@ -7966,7 +7966,7 @@ ol.control.LayerSwitcherTidop = class olcontrolLayerSwitcherTidop extends ol.con
       // Visibility
       var input = ol.ext.element.create('INPUT', {
         type: layer.get('baseLayer') ? 'radio' : 'checkbox',
-        className: 'ol-visibility',
+        className: 'ol-visibility form-check-input h-18px w-18px',
         checked: layer.getVisible(),
         click: function(e) {
           setVisibility.bind(this)(e)
@@ -8068,11 +8068,13 @@ ol.control.LayerSwitcherTidop = class olcontrolLayerSwitcherTidop extends ol.con
         }.bind(this),
         parent: label
       })
-      var extra_layer_data = ol.ext.element.create('DIV', {
-        className: 'extra-layer-data' + ' ' + layer.get('id') + '-extra-layer-data ',
-        parent: d,
-        //html: 'prueba'
-      })
+      if (layer.get('extra_layer_data')) {
+        var extra_layer_data = ol.ext.element.create('DIV', {
+          className: 'extra-layer-data' + ' ' + layer.get('id') + '-extra-layer-data ',
+          parent: d,
+          html: layer.get('extra_layer_data')
+        })
+      }
       //  up/down
       if (this.reordering) {
         if ((i < layers.length - 1 && (layer.get("allwaysOnTop") || !layers[i + 1].get("allwaysOnTop")))

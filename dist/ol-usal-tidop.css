@@ -3219,6 +3219,10 @@ body > .ol-usal-tidop-dialog > form {
   display: block;
   font-size: 0.9em;
 }
+
+input.ol-visibility.form-check-input.h-18px.w-18px {
+  margin-top: 0.22em !important;
+}
 .ol-control.ol-legend {
   bottom: .5em;
   left: .5em;
