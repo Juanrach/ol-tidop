@@ -1,7 +1,7 @@
 /**
  * ol-usal-tidop - A set of cool extensions for OpenLayers (ol) in node modules structure
  * @description ol3,openlayers,popup,menu,symbol,renderer,filter,canvas,interaction,split,statistic,charts,pie,LayerSwitcher,toolbar,animation
- * @version v0.0.3
+ * @version v0.0.4
  * @author Juanrach
  * @see https://github.com/Juanrach/ol-usal-tidop#,
  * @license BSD-3-Clause
@@ -7636,7 +7636,7 @@ ol.control.LayerSwitcherTidop = class olcontrolLayerSwitcherTidop extends ol.con
     // Reset scrolltop
     this.panelContainer_.scrollTop = scrollTop
     // Counter
-    this.counter.innerHTML = this.panel_.parentNode.querySelectorAll('ul.panel > li:not(.ol-header)').length;
+    //this.counter.innerHTML = this.panel_.parentNode.querySelectorAll('ul.panel > li:not(.ol-header)').length;
   }
   /** Change layer visibility according to the baselayer option
    * @param {ol.layer}

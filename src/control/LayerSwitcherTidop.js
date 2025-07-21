@@ -446,7 +446,7 @@ var ol_control_LayerSwitcherTidop = class olcontrolLayerSwitcherTidop extends ol
     // Reset scrolltop
     this.panelContainer_.scrollTop = scrollTop
     // Counter
-    this.counter.innerHTML = this.panel_.parentNode.querySelectorAll('ul.panel > li:not(.ol-header)').length;
+    //this.counter.innerHTML = this.panel_.parentNode.querySelectorAll('ul.panel > li:not(.ol-header)').length;
   }
   /** Change layer visibility according to the baselayer option
    * @param {ol.layer}

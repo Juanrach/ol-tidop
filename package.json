@@ -1,6 +1,6 @@
 {
   "name": "ol-usal-tidop",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A set of cool extensions for OpenLayers (ol) in node modules structure",
   "main": "dist/ol-usal-tidop.js",
   "style": "dist/ol-usal-tidop.css",
