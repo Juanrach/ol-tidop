@@ -8,7 +8,7 @@ import {getCenter as ol_extent_getCenter} from 'ol/extent.js'
 import ol_Map from 'ol/Map.js'
 import ol_View from 'ol/View.js'
 import {transformExtent as ol_proj_transformExtent} from 'ol/proj.js'
-import ol_ext_element from 'ol-ext/util/element.js'
+import ol_ext_element from 'ol-usal-tidop/util/element.js'
 
 /** A control to jump from one zone to another.
  * @constructor

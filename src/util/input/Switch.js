@@ -15,7 +15,7 @@ var ol_ext_input_Switch = class olextinputSwitch extends ol_ext_input_Checkbox {
 
     super(options);
 
-    this.element.className = ('ol-ext-toggle-switch ' + (options.className || '')).trim();
+    this.element.className = ('ol-usal-tidop-toggle-switch ' + (options.className || '')).trim();
   }
 };
   

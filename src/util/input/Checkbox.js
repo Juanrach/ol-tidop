@@ -24,7 +24,7 @@ var ol_ext_input_Checkbox = class olextinputCheckbox extends ol_ext_input_Base {
       label.appendChild(options.html);
     else if (options.html !== undefined)
       label.innerHTML = options.html;
-    label.className = ('ol-ext-check ol-ext-checkbox ' + (options.className || '')).trim();
+    label.className = ('ol-usal-tidop-check ol-usal-tidop-checkbox ' + (options.className || '')).trim();
 
     if (this.input.parentNode)
       this.input.parentNode.insertBefore(label, this.input);

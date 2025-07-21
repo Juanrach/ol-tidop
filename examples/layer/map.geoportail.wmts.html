@@ -5,7 +5,7 @@
 	Copyright (c) 2015-2018 Jean-Marc VIGLINO, 
 	released under CeCILL-B (french BSD like) licence: http://www.cecill.info/
 -->
-	<title>ol-ext: IGN Géoservices</title>
+	<title>ol-usal-tidop: IGN Géoservices</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="Geoportail layer for ol" />
@@ -19,9 +19,9 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
 	<script src="/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL,Object.assign"></script>
 	
-	<!-- ol-ext -->
-  <link rel="stylesheet" href="../../dist/ol-ext.css" />
-  <script type="text/javascript" src="../../dist/ol-ext.js"></script>
+	<!-- ol-usal-tidop -->
+  <link rel="stylesheet" href="../../dist/ol-usal-tidop.css" />
+  <script type="text/javascript" src="../../dist/ol-usal-tidop.js"></script>
   <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
   <script src="https://unpkg.com/elm-pep"></script>
 
@@ -144,11 +144,11 @@
   </style>
 </head>
 <body >
-	<a href="https://github.com/Viglino/ol-ext" class="icss-github-corner"><i></i></a>
+	<a href="https://github.com/Juanrach/ol-usal-tidop" class="icss-github-corner"><i></i></a>
 
   <div id="top">
     <a href="../../index.html">
-      <h1>ol-ext: IGN Géoservices</h1>
+      <h1>ol-usal-tidop: IGN Géoservices</h1>
     </a>
     <ul class="choice">
       <li class="select" onclick="code(this, 'js5')">
@@ -224,7 +224,7 @@ ol.layer.Geoportail.getCapabilities().then(function(caps, themes) {
             + 'var layer = new ol.layer.Geoportail({ layer: \''+c+'\' });'
           );
           $('#code .es6').text(
-            'import Geoportail from \'ol-ext/layer/Geoportail\';\n'
+            'import Geoportail from \'ol-usal-tidop/layer/Geoportail\';\n'
             + 'Geoportail.register("' + c + '", '
             + JSON.stringify(cap)
             + ');\n'

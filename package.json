@@ -1,9 +1,9 @@
 {
-  "name": "ol-ext",
-  "version": "4.0.33",
+  "name": "ol-usal-tidop",
+  "version": "0.0.1",
   "description": "A set of cool extensions for OpenLayers (ol) in node modules structure",
-  "main": "dist/ol-ext.js",
-  "style": "dist/ol-ext.css",
+  "main": "dist/ol-usal-tidop.js",
+  "style": "dist/ol-usal-tidop.css",
   "peerDependencies": {
     "ol": ">= 5.3.0"
   },
@@ -34,8 +34,8 @@
     "postpack": "gulp postpublish --gulpfile ./gulpfile.cjs"
   },
   "author": {
-    "name": "Jean-Marc Viglino",
-    "url": "https://github.com/Viglino"
+    "name": "Juanrach",
+    "url": "https://github.com/Juanrach"
   },
   "contributors": [
     {
@@ -48,9 +48,9 @@
     }
   ],
   "bugs": {
-    "url": "https://github.com/Viglino/ol-ext/issues"
+    "url": "https://github.com/Juanrach/ol-usal-tidop/issues"
   },
-  "homepage": "https://github.com/Viglino/ol-ext#,",
+  "homepage": "https://github.com/Juanrach/ol-usal-tidop#,",
   "keywords": [
     "ol3",
     "openlayers",
@@ -72,7 +72,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Viglino/ol-ext.git"
+    "url": "git+https://github.com/Juanrach/ol-usal-tidop.git"
   },
   "license": "BSD-3-Clause",
   "dependencies": {

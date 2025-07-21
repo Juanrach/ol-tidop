@@ -1,10 +1,10 @@
-# Contributing to ol-ext
+# Contributing to ol-usal-tidop
 
-Thanks for your interest in contributing to ol-ext.
+Thanks for your interest in contributing to ol-usal-tidop.
 
 ## Submitting Bug Reports or Asking Questions
 
-Please use the [GitHub issue tracker](https://github.com/Viglino/ol-ext/issues). 
+Please use the [GitHub issue tracker](https://github.com/Juanrach/ol-usal-tidop/issues). 
 Before creating a new issue, do a quick search to see if the problem has been reported already.
 
 ## Contributing Code
@@ -14,7 +14,7 @@ See [`DEVELOPING.md`](DEVELOPING.md) to learn how to get started developing.
 Clone the repository and [pull requests](https://help.github.com/articles/using-pull-requests). Make sure
 that your pull request follows our pull request guidelines below before submitting it.
 
-This page describes what you need to know to contribute code to ol-ext as a developer.
+This page describes what you need to know to contribute code to ol-usal-tidop as a developer.
 
 ## Contributor License Agreement
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2014 by Jean-Marc.Viglino [at]ign.fr
+/* Copyright (c) 2014 by Jean-Marc.Juanrach [at]ign.fr
 * Dual-licensed under the CeCILL-B Licence (http://www.cecill.info/)
 * and the Beerware license (http://en.wikipedia.org/wiki/Beerware), 
 *

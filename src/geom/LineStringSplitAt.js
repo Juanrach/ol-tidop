@@ -69,4 +69,4 @@ ol_geom_LineString.prototype.splitAt = function(pt, tol) {
     else return [this];
 }
 
-// import('ol-ext/geom/LineStringSplitAt')
+// import('ol-usal-tidop/geom/LineStringSplitAt')

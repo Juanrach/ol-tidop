@@ -92,7 +92,7 @@ var ol_control_PrintDialog = class olcontrolPrintDialog extends ol_control_Contr
     var printDialog = this._printDialog = new ol_control_Dialog({
       target: options.targetDialog || document.body,
       closeBox: true,
-      className: 'ol-ext-print-dialog'
+      className: 'ol-usal-tidop-print-dialog'
     })
     var content = printDialog.getContentElement()
     this._input = {}
@@ -471,7 +471,7 @@ var ol_control_PrintDialog = class olcontrolPrintDialog extends ol_control_Contr
 
     // Print
     var prButtons = ol_ext_element.create('DIV', {
-      className: 'ol-ext-buttons',
+      className: 'ol-usal-tidop-buttons',
       parent: param
     })
     ol_ext_element.create('BUTTON', {

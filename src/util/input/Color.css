@@ -1,4 +1,4 @@
-.ol-ext-colorpicker.ol-popup {
+.ol-usal-tidop-colorpicker.ol-popup {
   width: 2em;
   height: 1.5em;
   background-color: transparent;
@@ -9,16 +9,16 @@
   background-position: 0 -1px, 5px 4px;
 }
 
-.ol-ext-colorpicker .ol-tabbar {
+.ol-usal-tidop-colorpicker .ol-tabbar {
   background-color: #eee;
   border-bottom: 1px solid #999;
   display: none;
 }
-.ol-ext-colorpicker.ol-tab .ol-tabbar {
+.ol-usal-tidop-colorpicker.ol-tab .ol-tabbar {
   display: block;
 }
 
-.ol-ext-colorpicker .ol-tabbar > div {
+.ol-usal-tidop-colorpicker .ol-tabbar > div {
   display: inline-block;
   background-color: #fff;
   padding: 0 .5em;
@@ -28,37 +28,37 @@
   top: 1px;
   cursor: pointer;
 }
-.ol-ext-colorpicker .ol-tabbar > div:nth-child(1) {
+.ol-usal-tidop-colorpicker .ol-tabbar > div:nth-child(1) {
   border-bottom-color: #fff;
 }
-.ol-ext-colorpicker.ol-picker-tab .ol-tabbar > div:nth-child(1) {
+.ol-usal-tidop-colorpicker.ol-picker-tab .ol-tabbar > div:nth-child(1) {
   border-bottom-color: #999;
 }
-.ol-ext-colorpicker.ol-picker-tab .ol-tabbar > div:nth-child(2) {
+.ol-usal-tidop-colorpicker.ol-picker-tab .ol-tabbar > div:nth-child(2) {
   border-bottom-color: #fff;
 }
 
-.ol-ext-colorpicker.ol-popup.ol-tab .ol-popup {
+.ol-usal-tidop-colorpicker.ol-popup.ol-tab .ol-popup {
   width: 180px;
 }
-.ol-ext-colorpicker.ol-tab .ol-palette {
+.ol-usal-tidop-colorpicker.ol-tab .ol-palette {
   margin: 0 10px;
 }
-.ol-ext-colorpicker.ol-tab .ol-container {
+.ol-usal-tidop-colorpicker.ol-tab .ol-container {
   display: none;
 }
-.ol-ext-colorpicker.ol-tab.ol-picker-tab .ol-container {
+.ol-usal-tidop-colorpicker.ol-tab.ol-picker-tab .ol-container {
   display: block;
 }
-.ol-ext-colorpicker.ol-tab.ol-picker-tab .ol-palette {
+.ol-usal-tidop-colorpicker.ol-tab.ol-picker-tab .ol-palette {
   display: none;
 }
 
-.ol-ext-colorpicker.ol-popup .ol-popup {
+.ol-usal-tidop-colorpicker.ol-popup .ol-popup {
   width: 340px;
 }
 
-.ol-ext-colorpicker.ol-popup .ol-vignet {
+.ol-usal-tidop-colorpicker.ol-popup .ol-vignet {
   content: "";
   position: absolute;
   width: 100%;
@@ -70,16 +70,16 @@
   pointer-events: none;
 }
 
-.ol-ext-colorpicker .ol-container {
+.ol-usal-tidop-colorpicker .ol-container {
   position: relative;
   display: inline-block;
   vertical-align: top;
 }
-.ol-ext-colorpicker .ol-cursor {
+.ol-usal-tidop-colorpicker .ol-cursor {
   pointer-events: none;
 }
 
-.ol-ext-colorpicker .ol-picker {
+.ol-usal-tidop-colorpicker .ol-picker {
   position: relative;
   cursor: crosshair;
   width: 150px;
@@ -89,7 +89,7 @@
   background-image: linear-gradient(0, #000, transparent),
     linear-gradient(90deg, #fff, transparent);
 }
-.ol-ext-colorpicker .ol-picker .ol-cursor {
+.ol-usal-tidop-colorpicker .ol-picker .ol-cursor {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -101,7 +101,7 @@
   border-radius: 50%;
 }
 
-.ol-ext-colorpicker .ol-slider {
+.ol-usal-tidop-colorpicker .ol-slider {
   position: relative;
   cursor: crosshair;
   background-color: #fff;
@@ -116,13 +116,13 @@
   background-size: 10px 10px;
   background-position: 0 -1px, 5px 4px;
 }
-.ol-ext-colorpicker .ol-slider > div {
+.ol-usal-tidop-colorpicker .ol-slider > div {
   width: 100%;
   height: 100%;
   background-image: linear-gradient(45deg, transparent, #fff);
   pointer-events: none;
 }
-.ol-ext-colorpicker .ol-slider .ol-cursor {
+.ol-usal-tidop-colorpicker .ol-slider .ol-cursor {
   position: absolute;
   width: 4px;
   height: 12px;
@@ -132,7 +132,7 @@
   background: transparent;
   transform: translate(-50%, -50%);
 }
-.ol-ext-colorpicker .ol-tint {
+.ol-usal-tidop-colorpicker .ol-tint {
   position: absolute;
   cursor: crosshair;
   width: 10px;
@@ -144,7 +144,7 @@
   right: 5px;
   background-image: linear-gradient(0, #f00, #f0f, #00f, #0ff, #0f0, #ff0, #f00)
 }
-.ol-ext-colorpicker .ol-tint .ol-cursor {
+.ol-usal-tidop-colorpicker .ol-tint .ol-cursor {
   position: absolute;
   top: 0;
   left: 50%;
@@ -154,7 +154,7 @@
   transform: translate(-50%, -50%);
 }
 
-.ol-ext-colorpicker .ol-clear {
+.ol-usal-tidop-colorpicker .ol-clear {
   position: absolute;
   border: 2px solid #999;
   right: 4px;
@@ -162,8 +162,8 @@
   width: 10px;
   height: 10px;
 }
-.ol-ext-colorpicker .ol-clear:before,
-.ol-ext-colorpicker .ol-clear:after {
+.ol-usal-tidop-colorpicker .ol-clear:before,
+.ol-usal-tidop-colorpicker .ol-clear:after {
   content: "";
   position: absolute;
   width: 15px;
@@ -173,25 +173,25 @@
   left: 50%;
   transform: translate(-50%, -50%) rotate(45deg);
 }
-.ol-ext-colorpicker .ol-clear:after {
+.ol-usal-tidop-colorpicker .ol-clear:after {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-.ol-ext-colorpicker.ol-nopacity .ol-slider,
-.ol-ext-colorpicker.ol-nopacity .ol-clear {
+.ol-usal-tidop-colorpicker.ol-nopacity .ol-slider,
+.ol-usal-tidop-colorpicker.ol-nopacity .ol-clear {
   display: none;
 }
-.ol-ext-colorpicker.ol-nopacity .ol-alpha {
+.ol-usal-tidop-colorpicker.ol-nopacity .ol-alpha {
   display: none;
 }
 
-.ol-ext-colorpicker .ol-rgb {
+.ol-usal-tidop-colorpicker .ol-rgb {
   position: relative;
   padding: 5px;
   width: 170px;
   display: none;
 }
-.ol-ext-colorpicker .ol-rgb input {
+.ol-usal-tidop-colorpicker .ol-rgb input {
   width: 25%;
   box-sizing: border-box;
   padding: 0 0 0 2px;
@@ -199,18 +199,18 @@
   border-radius: 2px;
   font-size: 13px;
 }
-.ol-ext-colorpicker .ol-rgb input:nth-child(1) {
+.ol-usal-tidop-colorpicker .ol-rgb input:nth-child(1) {
 	background-color: rgba(255,0,0,.1);
 }
-.ol-ext-colorpicker .ol-rgb input:nth-child(2) {
+.ol-usal-tidop-colorpicker .ol-rgb input:nth-child(2) {
 	background-color: rgba(0,255,0,.1);
 }
-.ol-ext-colorpicker .ol-rgb input:nth-child(3) {
+.ol-usal-tidop-colorpicker .ol-rgb input:nth-child(3) {
 	background-color: rgba(0,0,255,.12);
 }
 
-.ol-ext-colorpicker button,
-.ol-ext-colorpicker .ol-txt-color {
+.ol-usal-tidop-colorpicker button,
+.ol-usal-tidop-colorpicker .ol-txt-color {
   font-size: 13px;
   margin: 0 5px 5px;
   text-align: center;
@@ -221,23 +221,23 @@
   border-radius: 2px;
   display: block;
 }
-.ol-ext-colorpicker button {
+.ol-usal-tidop-colorpicker button {
   background-color: #eee;
 }
-.ol-ext-colorpicker button:hover {
+.ol-usal-tidop-colorpicker button:hover {
   background-color: #e9e9e9;
 }
 
-.ol-ext-colorpicker .ol-txt-color.ol-error {
+.ol-usal-tidop-colorpicker .ol-txt-color.ol-error {
   background-color: rgba(255,0,0,.2);
 }
 
-.ol-ext-colorpicker .ol-palette {
+.ol-usal-tidop-colorpicker .ol-palette {
   padding: 2px;
   display: inline-block;
   width: 152px;
 }
-.ol-ext-colorpicker .ol-palette > div {
+.ol-usal-tidop-colorpicker .ol-palette > div {
   width: 15px;
   height: 15px;
   display: inline-block;
@@ -252,14 +252,14 @@
   cursor: pointer;
   position: relative;
 }
-.ol-ext-colorpicker .ol-palette > div:before {
+.ol-usal-tidop-colorpicker .ol-palette > div:before {
   content: "";
   position: absolute;
   background-color: currentColor;
   width: 100%;
   height: 100%;
 }
-.ol-ext-colorpicker .ol-palette > div.ol-select:after {
+.ol-usal-tidop-colorpicker .ol-palette > div.ol-select:after {
   content: "";
   position: absolute;
   width: 6px;
@@ -269,9 +269,9 @@
   left: 50%;
   transform: translate(-50%, -50%) rotate(45deg);
 }
-.ol-ext-colorpicker .ol-palette > div:hover {
+.ol-usal-tidop-colorpicker .ol-palette > div:hover {
   box-shadow: 0 0 2px 1px #d90;
 }
-.ol-ext-colorpicker .ol-palette hr {
+.ol-usal-tidop-colorpicker .ol-palette hr {
   margin: 0;
 }

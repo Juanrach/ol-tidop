@@ -2,7 +2,7 @@
 
 ## Setting up development environment
 
-You will obviously start by [forking](https://github.com/viglino/ol-ext/fork) the ol-ext repository.
+You will obviously start by [forking](https://github.com/viglino/ol-usal-tidop/fork) the ol-usal-tidop repository.
 
 ### Install the dependencies
 
@@ -59,7 +59,7 @@ In Openlayers classes just replace the `point` by a `underscore`.
 The file name must reflect the name of the extension and should be placed in the src directory corresponding to its namespace.
 Thus `ol_control_MyControl`must be created in the `./src/control/MyControl.js` file and can be used in a webpack as:
 ````javascript
-import ol_control_MyControl from 'ol-ext/control/MyControl.js';
+import ol_control_MyControl from 'ol-usal-tidop/control/MyControl.js';
 ````
 
 Example:
@@ -94,7 +94,7 @@ The documentation use [gulp-jsdoc3](https://www.npmjs.com/package/gulp-jsdoc3) t
 ````
 npm install gulp-jsdoc3
 ````
-2. then run the gulp command to create the doc in the [doc/doc-pages](http://viglino.github.io/ol-ext/doc/doc-pages/) directory:
+2. then run the gulp command to create the doc in the [doc/doc-pages](http://viglino.github.io/ol-usal-tidop/doc/doc-pages/) directory:
 ````
 gulp doc
 ````

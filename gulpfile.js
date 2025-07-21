@@ -61,7 +61,7 @@ function transform() {
 
 // Retrieve option (--debug for css)
 var options = require("minimist")(process.argv.slice(2));
-var name = "ol-ext";
+var name = "ol-usal-tidop";
 
 // using data from package.json 
 var pkg = require('./package.json');
@@ -254,7 +254,7 @@ gulp.task('doc', function (cb) {
   var config = require('./doc/jsdoc.json');
   return gulp.src([
     "doc/doc.md", "doc/namespace.js",
-    "./dist/ol-ext.js"
+    "./dist/ol-usal-tidop.js"
     ], {read: false})
     .pipe(jsdoc(config, cb));
 });

@@ -16,7 +16,7 @@
         "useLongnameInNav": true
       },
       "logoFile": "https://openlayers.org/theme/img/logo-dark.svg",
-      "systemName": "ol-ext",
+      "systemName": "ol-usal-tidop",
       "path": "ink-docstrap",
       "theme": "cosmo",
       "navType": "vertical",

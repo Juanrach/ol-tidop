@@ -172,6 +172,6 @@ ol_geom_LineString.prototype.calcCSpline_ = function(options) {
 }
 
 // To use this module with ol/geom/Geometry
-// import 'ol-ext/utils/cspline.js'
+// import 'ol-usal-tidop/utils/cspline.js'
 
 export default ol_coordinate_cspline

@@ -1,10 +1,10 @@
 {
-    "name": "viglino/ol-ext",
+    "name": "Juanrach/ol-usal-tidop",
     "description": "Cool extensions for OpenLayers (ol)",
     "license": "CeCILL-B",
     "authors": [
         {
-            "name": "Jean-Marc Viglino",
+            "name": "Jean-Marc Juanrach",
             "email": "jean-marc.viglino@ign.fr"
         }
     ]

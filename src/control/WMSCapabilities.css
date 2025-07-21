@@ -220,47 +220,47 @@
   box-shadow: -0.8em 0.25em;
 }
 
-.ol-ext-dialog.ol-wmscapabilities form {
+.ol-usal-tidop-dialog.ol-wmscapabilities form {
   width: 600px;
   min-height: 15em;
   top: 15%;
   transform: translate(-50%, -15%);
 }
-.ol-ext-dialog.ol-wmscapabilities .ol-content {
+.ol-usal-tidop-dialog.ol-wmscapabilities .ol-content {
   max-height: calc(100vh - 6em);
 }
 
-.ol-ext-dialog.ol-wmtscapabilities [data-param="map"] {
+.ol-usal-tidop-dialog.ol-wmtscapabilities [data-param="map"] {
   display: none;
 }
-.ol-ext-dialog [data-param="style"] {
+.ol-usal-tidop-dialog [data-param="style"] {
   display: none;
 }
-.ol-ext-dialog.ol-wmtscapabilities [data-param="style"] {
+.ol-usal-tidop-dialog.ol-wmtscapabilities [data-param="style"] {
   display: list-item;
 }
-.ol-ext-dialog.ol-wmtscapabilities [data-param="proj"],
-.ol-ext-dialog.ol-wmtscapabilities [data-param="version"] {
+.ol-usal-tidop-dialog.ol-wmtscapabilities [data-param="proj"],
+.ol-usal-tidop-dialog.ol-wmtscapabilities [data-param="version"] {
   opacity: .6;
   pointer-events: none;
 }
 
-.ol-ext-dialog.ol-wmscapabilities button.ol-wmsform {
+.ol-usal-tidop-dialog.ol-wmscapabilities button.ol-wmsform {
   width: 1.8em;
   text-align: center;
 }
-.ol-ext-dialog.ol-wmscapabilities button.ol-wmsform:before {
+.ol-usal-tidop-dialog.ol-wmscapabilities button.ol-wmsform:before {
   content: "+";
 }
-.ol-ext-dialog.ol-wmscapabilities .ol-form button.ol-wmsform:before {
+.ol-usal-tidop-dialog.ol-wmscapabilities .ol-form button.ol-wmsform:before {
   content: "-";
 }
 
-.ol-ext-dialog.ol-wmscapabilities .ol-form button.ol-load,
-.ol-ext-dialog.ol-wmscapabilities .ol-form .ol-legend {
+.ol-usal-tidop-dialog.ol-wmscapabilities .ol-form button.ol-load,
+.ol-usal-tidop-dialog.ol-wmscapabilities .ol-form .ol-legend {
   display: none;
 }
-.ol-ext-dialog.ol-wmscapabilities .ol-form ul.ol-wmsform {
+.ol-usal-tidop-dialog.ol-wmscapabilities .ol-form ul.ol-wmsform {
   display: block;
   clear: both;
 }

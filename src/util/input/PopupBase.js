@@ -25,7 +25,7 @@ var ol_ext_input_PopupBase = class olextinputPopupBase extends ol_ext_input_Base
     this.set('autoClose', options.autoClose !== false);
 
     this.element = ol_ext_element.create('DIV', {
-      className: ('ol-ext-popup-input ' + (options.className || '')).trim(),
+      className: ('ol-usal-tidop-popup-input ' + (options.className || '')).trim(),
       tabindex: 0,
       on: {
         keydown: function(e) {

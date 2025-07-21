@@ -1,4 +1,4 @@
-.ol-ext-dialog {
+.ol-usal-tidop-dialog {
   position: fixed;
   top: -100%;
   left: 0;
@@ -10,27 +10,27 @@
   pointer-events: none!important;
   transition: opacity .2s, top 0s .2s;
 }
-.ol-ext-dialog.ol-visible {
+.ol-usal-tidop-dialog.ol-visible {
   opacity: 1;
   top: 0;
   pointer-events: all!important;
   transition: opacity .2s, top 0s;
 }
 
-.ol-viewport .ol-ext-dialog {
+.ol-viewport .ol-usal-tidop-dialog {
   position: absolute;
 }
-.ol-ext-dialog > form > h2 {
+.ol-usal-tidop-dialog > form > h2 {
   margin: 0 .5em .5em 0;
   display: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.ol-ext-dialog > form.ol-title > h2 {
+.ol-usal-tidop-dialog > form.ol-title > h2 {
   display: block;
 }
-.ol-ext-dialog > form {
+.ol-usal-tidop-dialog > form {
   position: absolute;
   top: 0;
   left: 33.33%;
@@ -48,39 +48,39 @@
   overflow-x: hidden;
   overflow-y: auto;
 }
-dialog.ol-ext-dialog > form {
+dialog.ol-usal-tidop-dialog > form {
   left: 50%;
   width: max-content;
   max-width: 90%;
 }
 
-.ol-ext-dialog > form.ol-closebox {
+.ol-usal-tidop-dialog > form.ol-closebox {
   padding-top: 1.5em;
 }
-.ol-ext-dialog > form.ol-title {
+.ol-usal-tidop-dialog > form.ol-title {
   padding-top: 1em;
 }
-.ol-ext-dialog > form.ol-button {
+.ol-usal-tidop-dialog > form.ol-button {
   padding-bottom: .5em;
 }
 
-.ol-ext-dialog.ol-zoom > form {
+.ol-usal-tidop-dialog.ol-zoom > form {
   top: 30%;
   transform: translate(-50%, -30%) scale(0);
 }
-.ol-ext-dialog.ol-visible > form {
+.ol-usal-tidop-dialog.ol-visible > form {
   top: 30%;
 }
-.ol-ext-dialog.ol-zoom.ol-visible > form {
+.ol-usal-tidop-dialog.ol-zoom.ol-visible > form {
   transform: translate(-50%, -30%) scale(1);
 }
 
-.ol-ext-dialog > form .ol-content {
+.ol-usal-tidop-dialog > form .ol-content {
   overflow-x: hidden;
   overflow-y: auto;
 }
 
-.ol-ext-dialog > form .ol-closebox {
+.ol-usal-tidop-dialog > form .ol-closebox {
   position: absolute;
   top: .5em;
   right: .5em;
@@ -89,11 +89,11 @@ dialog.ol-ext-dialog > form {
   cursor: pointer;
   display: none;
 }
-.ol-ext-dialog > form.ol-closebox .ol-closebox {
+.ol-usal-tidop-dialog > form.ol-closebox .ol-closebox {
   display: block;
 }
-.ol-ext-dialog > form .ol-closebox:before,
-.ol-ext-dialog > form .ol-closebox:after {
+.ol-usal-tidop-dialog > form .ol-closebox:before,
+.ol-usal-tidop-dialog > form .ol-closebox:after {
   content: "";
   position: absolute;
   background-color: currentColor;
@@ -104,15 +104,15 @@ dialog.ol-ext-dialog > form {
   border-radius: .1em;
   transform: translate(-50%, -50%) rotate(45deg);
 }
-.ol-ext-dialog > form .ol-closebox:before {
+.ol-usal-tidop-dialog > form .ol-closebox:before {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-.ol-ext-dialog > form .ol-buttons {
+.ol-usal-tidop-dialog > form .ol-buttons {
   text-align: right;
   overflow-x: hidden;
 }
-.ol-ext-dialog > form .ol-buttons input {
+.ol-usal-tidop-dialog > form .ol-buttons input {
   margin-top: .5em;
   padding: .5em;
   background: none;
@@ -122,19 +122,19 @@ dialog.ol-ext-dialog > form {
   cursor: pointer;
   border-radius: .25em;
 } 
-.ol-ext-dialog > form .ol-buttons input:hover {
+.ol-usal-tidop-dialog > form .ol-buttons input:hover {
   background-color:  rgba(0,60,136,.1);
 }
-.ol-ext-dialog > form .ol-buttons input[type=submit] {
+.ol-usal-tidop-dialog > form .ol-buttons input[type=submit] {
   font-weight: bold;
 }
 
-.ol-ext-dialog .ol-progress-message {
+.ol-usal-tidop-dialog .ol-progress-message {
   font-size: .9em;
   text-align: center;
   padding-bottom: .5em;
 }
-.ol-ext-dialog .ol-progress-bar {
+.ol-usal-tidop-dialog .ol-progress-bar {
   border: 1px solid #369;
   width: 20em;
   height: 1em;
@@ -143,18 +143,18 @@ dialog.ol-ext-dialog > form {
   margin: .5em auto 0;
   overflow: hidden;
 }
-.ol-ext-dialog .ol-progress-bar > div {
+.ol-usal-tidop-dialog .ol-progress-bar > div {
   background: #369;
   height: 100%;
   width: 50%;
   transition: width .3s;
 }
-.ol-ext-dialog .ol-progress-bar > div.notransition {
+.ol-usal-tidop-dialog .ol-progress-bar > div.notransition {
   transition: unset;
 }
 
 /* full screen */
-.ol-ext-dialog.ol-fullscreen-dialog form {
+.ol-usal-tidop-dialog.ol-fullscreen-dialog form {
   top: 1em;
   transform: none;
   left: 1em;
@@ -167,25 +167,25 @@ dialog.ol-ext-dialog > form {
   border: none;
   color: #fff;
 }
-.ol-ext-dialog.ol-fullscreen-dialog form .ol-closebox {
+.ol-usal-tidop-dialog.ol-fullscreen-dialog form .ol-closebox {
   top: 0;
   right: 0;
   font-size: 2em;
 }
-.ol-ext-dialog.ol-fullscreen-dialog .ol-closebox:before,
-.ol-ext-dialog.ol-fullscreen-dialog .ol-closebox:after {
+.ol-usal-tidop-dialog.ol-fullscreen-dialog .ol-closebox:before,
+.ol-usal-tidop-dialog.ol-fullscreen-dialog .ol-closebox:after {
   border: .1em solid currentColor;
 }
-.ol-ext-dialog.ol-fullscreen-dialog img,
-.ol-ext-dialog.ol-fullscreen-dialog video {
+.ol-usal-tidop-dialog.ol-fullscreen-dialog img,
+.ol-usal-tidop-dialog.ol-fullscreen-dialog video {
   max-width: 100%;
 }
 
 /* Fullscreen dialog */
-body > .ol-ext-dialog .ol-content {
+body > .ol-usal-tidop-dialog .ol-content {
   max-height: calc(100vh - 10em);
 }
 
-body > .ol-ext-dialog > form {
+body > .ol-usal-tidop-dialog > form {
   overflow: visible;
 }

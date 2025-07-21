@@ -15,7 +15,7 @@ var ol_control_PrintDialog2x = class olcontrolPrintDialog2x extends ol_control_P
     options = options || {}
 
     super(options);
-    this._printDialog.element.classList.add('ol-ext-print-dialog2x')
+    this._printDialog.element.classList.add('ol-usal-tidop-print-dialog2x')
 
     // Add printmap
     var printMap = ol_ext_element.create('DIV', {

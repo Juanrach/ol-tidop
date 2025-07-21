@@ -15,7 +15,7 @@ import ol_control_CanvasBase from './CanvasBase.js'
 /** Draw a graticule on the map.
  * @constructor
  * @author mike-000 https://github.com/mike-000
- * @author Jean-Marc Viglino https://github.com/viglino
+ * @author Jean-Marc Juanrach https://github.com/viglino
  * @extends {ol_control_CanvasBase}
  * @param {Object=} _ol_control_ options.
  *  @param {ol.projectionLike} options.projection projection to use for the graticule, default EPSG:4326 

@@ -23,7 +23,7 @@ import ol_ext_element from '../util/element.js'
  * @classdesc OpenLayers 3 Profile Control.
  * Draw a profile of a feature (with a 3D geometry)
  * @author Gastón Zalba https://github.com/GastonZalba
- * @author Jean-Marc Viglino https://github.com/viglino
+ * @author Jean-Marc Juanrach https://github.com/viglino
  *
  * @constructor
  * @extends {ol_control_Control}

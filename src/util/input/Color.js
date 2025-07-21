@@ -27,7 +27,7 @@ var ol_ext_input_Color = class olextinputColor extends ol_ext_input_PopupBase {
     options = options || {};
 
     options.hidden = options.hidden !== false;
-    options.className = ('ol-ext-colorpicker ' + (options.hastab ? 'ol-tab ' : '') + (options.className || '')).trim();
+    options.className = ('ol-usal-tidop-colorpicker ' + (options.hastab ? 'ol-tab ' : '') + (options.className || '')).trim();
     super(options);
 
     this.input.disabled = true;
@@ -206,12 +206,12 @@ var ol_ext_input_Color = class olextinputColor extends ol_ext_input_PopupBase {
     // Create custom color list
     if (!ol_ext_input_Color.customColorList) {
       ol_ext_input_Color.customColorList = new ol_Collection();
-      var ccolor = JSON.parse(localStorage.getItem('ol-ext@colorpicker') || '[]');
+      var ccolor = JSON.parse(localStorage.getItem('ol-usal-tidop@colorpicker') || '[]');
       ccolor.forEach(function (c) {
         ol_ext_input_Color.customColorList.push(c);
       });
       ol_ext_input_Color.customColorList.on(['add', 'remove'], function () {
-        localStorage.setItem('ol-ext@colorpicker', JSON.stringify(ol_ext_input_Color.customColorList.getArray()));
+        localStorage.setItem('ol-usal-tidop@colorpicker', JSON.stringify(ol_ext_input_Color.customColorList.getArray()));
       });
     }
     // Handle custom color

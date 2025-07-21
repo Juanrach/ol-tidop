@@ -1,9 +1,9 @@
 /**
- * ol-ext - A set of cool extensions for OpenLayers (ol) in node modules structure
+ * ol-usal-tidop - A set of cool extensions for OpenLayers (ol) in node modules structure
  * @description ol3,openlayers,popup,menu,symbol,renderer,filter,canvas,interaction,split,statistic,charts,pie,LayerSwitcher,toolbar,animation
- * @version v4.0.33
- * @author Jean-Marc Viglino
- * @see https://github.com/Viglino/ol-ext#,
+ * @version v0.0.1
+ * @author Juanrach
+ * @see https://github.com/Juanrach/ol-usal-tidop#,
  * @license BSD-3-Clause
  */
 /*global ol*/
@@ -2492,7 +2492,7 @@ ol.ext.input.PopupBase = class olextinputPopupBase extends ol.ext.input.Base {
     super(options);
     this.set('autoClose', options.autoClose !== false);
     this.element = ol.ext.element.create('DIV', {
-      className: ('ol-ext-popup-input ' + (options.className || '')).trim(),
+      className: ('ol-usal-tidop-popup-input ' + (options.className || '')).trim(),
       tabindex: 0,
       on: {
         keydown: function(e) {
@@ -2642,7 +2642,7 @@ ol.ext.input.Checkbox = class olextinputCheckbox extends ol.ext.input.Base {
       label.appendChild(options.html);
     else if (options.html !== undefined)
       label.innerHTML = options.html;
-    label.className = ('ol-ext-check ol-ext-checkbox ' + (options.className || '')).trim();
+    label.className = ('ol-usal-tidop-check ol-usal-tidop-checkbox ' + (options.className || '')).trim();
     if (this.input.parentNode)
       this.input.parentNode.insertBefore(label, this.input);
     label.appendChild(this.input);
@@ -2892,7 +2892,7 @@ ol.ext.input.Color = class olextinputColor extends ol.ext.input.PopupBase {
   constructor(options) {
     options = options || {};
     options.hidden = options.hidden !== false;
-    options.className = ('ol-ext-colorpicker ' + (options.hastab ? 'ol-tab ' : '') + (options.className || '')).trim();
+    options.className = ('ol-usal-tidop-colorpicker ' + (options.hastab ? 'ol-tab ' : '') + (options.className || '')).trim();
     super(options);
     this.input.disabled = true;
     if (options.opacity === false) {
@@ -3058,12 +3058,12 @@ ol.ext.input.Color = class olextinputColor extends ol.ext.input.PopupBase {
     // Create custom color list
     if (!ol.ext.input.Color.customColorList) {
       ol.ext.input.Color.customColorList = new ol.Collection();
-      var ccolor = JSON.parse(localStorage.getItem('ol-ext@colorpicker') || '[]');
+      var ccolor = JSON.parse(localStorage.getItem('ol-usal-tidop@colorpicker') || '[]');
       ccolor.forEach(function (c) {
         ol.ext.input.Color.customColorList.push(c);
       });
       ol.ext.input.Color.customColorList.on(['add', 'remove'], function () {
-        localStorage.setItem('ol-ext@colorpicker', JSON.stringify(ol.ext.input.Color.customColorList.getArray()));
+        localStorage.setItem('ol-usal-tidop@colorpicker', JSON.stringify(ol.ext.input.Color.customColorList.getArray()));
       });
     }
     // Handle custom color
@@ -3455,7 +3455,7 @@ ol.ext.input.Radio = class olextinputRadio extends ol.ext.input.Checkbox {
   constructor(options) {
     options = options || {};
     super(options);
-    this.element.className = ('ol-ext-check ol-ext-radio ' + (options.className || '')).trim();
+    this.element.className = ('ol-usal-tidop-check ol-usal-tidop-radio ' + (options.className || '')).trim();
   }
 }
 
@@ -3652,7 +3652,7 @@ ol.ext.input.Switch = class olextinputSwitch extends ol.ext.input.Checkbox {
   constructor(options) {
     options = options || {};
     super(options);
-    this.element.className = ('ol-ext-toggle-switch ' + (options.className || '')).trim();
+    this.element.className = ('ol-usal-tidop-toggle-switch ' + (options.className || '')).trim();
   }
 };
 
@@ -9309,7 +9309,7 @@ ol.control.Dialog = class olcontrolDialog extends ol.control.Control {
     if (options.fullscreen) options.target = document.body;
     var fullscreen = (options.target === document.body);
     var element = ol.ext.element.create(fullscreen ? 'DIALOG' : 'DIV', {
-      className: ((options.className || '') + (options.zoom ? ' ol-zoom' : '') + ' ol-ext-dialog').trim()
+      className: ((options.className || '') + (options.zoom ? ' ol-zoom' : '') + ' ol-usal-tidop-dialog').trim()
     })
     super({
       element: element,
@@ -9485,7 +9485,7 @@ ol.control.Dialog = class olcontrolDialog extends ol.control.Control {
       this.setProgress(0, options.max);
     if (options.progress !== undefined)
       this.setProgress(options.progress);
-    //this.element.className = 'ol-ext-dialog' + (this.get('zoom') ? ' ol-zoom' : '');
+    //this.element.className = 'ol-usal-tidop-dialog' + (this.get('zoom') ? ' ol-zoom' : '');
     if (this.get('zoom'))
       this.element.classList.add('ol-zoom');
     else
@@ -11364,7 +11364,7 @@ ol.control.Globe = class olcontrolGlobe extends ol.control.Control {
 /** Draw a graticule on the map.
  * @constructor
  * @author mike-000 https://github.com/mike-000
- * @author Jean-Marc Viglino https://github.com/viglino
+ * @author Jean-Marc Juanrach https://github.com/viglino
  * @extends {ol.control.CanvasBase}
  * @param {Object=} _ol_control_ options.
  *  @param {ol.projectionLike} options.projection projection to use for the graticule, default EPSG:4326 
@@ -14535,7 +14535,7 @@ ol.control.PrintDialog = class olcontrolPrintDialog extends ol.control.Control {
     var printDialog = this._printDialog = new ol.control.Dialog({
       target: options.targetDialog || document.body,
       closeBox: true,
-      className: 'ol-ext-print-dialog'
+      className: 'ol-usal-tidop-print-dialog'
     })
     var content = printDialog.getContentElement()
     this._input = {}
@@ -14900,7 +14900,7 @@ ol.control.PrintDialog = class olcontrolPrintDialog extends ol.control.Control {
     }.bind(this))
     // Print
     var prButtons = ol.ext.element.create('DIV', {
-      className: 'ol-ext-buttons',
+      className: 'ol-usal-tidop-buttons',
       parent: param
     })
     ol.ext.element.create('BUTTON', {
@@ -15445,7 +15445,7 @@ ol.control.PrintDialog2x = class olcontrolPrintDialog2x extends ol.control.Print
   constructor(options) {
     options = options || {}
     super(options);
-    this._printDialog.element.classList.add('ol-ext-print-dialog2x')
+    this._printDialog.element.classList.add('ol-usal-tidop-print-dialog2x')
     // Add printmap
     var printMap = ol.ext.element.create('DIV', {
       className: 'ol-map2',
@@ -15648,7 +15648,7 @@ ol.control.PrintDialog2x = class olcontrolPrintDialog2x extends ol.control.Print
  * @classdesc OpenLayers 3 Profile Control.
  * Draw a profile of a feature (with a 3D geometry)
  * @author Gastón Zalba https://github.com/GastonZalba
- * @author Jean-Marc Viglino https://github.com/viglino
+ * @author Jean-Marc Juanrach https://github.com/viglino
  *
  * @constructor
  * @extends {ol.control.Control}
@@ -23861,7 +23861,7 @@ ol.filter.Clip = class olfilterClip extends ol.filter.Base {
  * @requires ol.filter
  * @extends {ol.filter.Base}
  * @author Thomas Tilak https://github.com/thhomas
- * @author Jean-Marc Viglino https://github.com/viglino
+ * @author Jean-Marc Juanrach https://github.com/viglino
  * @param {FilterColorizeOptions} options
  */
 ol.filter.Colorize = class olfilterColorize extends ol.filter.Base {
@@ -29406,7 +29406,7 @@ ol.interaction.Offset = class olinteractionOffset extends ol.interaction.Pointer
   Copyright (c) 2015 Jean-Marc VIGLINO, 
   released under the CeCILL-B license (French BSD license)
   (http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt).
-  @link https://github.com/Viglino
+  @link https://github.com/Juanrach
 */
 /**
  * @constructor
@@ -30933,7 +30933,7 @@ ol.Map.prototype.hideTarget = function() {
   Copyright (c) 2015 Jean-Marc VIGLINO, 
   released under the CeCILL-B license (French BSD license)
   (http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt).
-  @link https://github.com/Viglino
+  @link https://github.com/Juanrach
 */
 /**
  * @constructor
@@ -41310,7 +41310,7 @@ ol.geom.LineString.prototype.splitAt = function(pt, tol) {
     if (c.length) return c;
     else return [this];
 }
-// import('ol-ext/geom/LineStringSplitAt')
+// import('ol-usal-tidop/geom/LineStringSplitAt')
 /*	Copyright (c) 2016 Jean-Marc VIGLINO, 
 	released under the CeCILL-B license (French BSD license)
 	(http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt).

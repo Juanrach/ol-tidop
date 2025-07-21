@@ -29,7 +29,7 @@ var ol_control_Dialog = class olcontrolDialog extends ol_control_Control {
     var fullscreen = (options.target === document.body);
 
     var element = ol_ext_element.create(fullscreen ? 'DIALOG' : 'DIV', {
-      className: ((options.className || '') + (options.zoom ? ' ol-zoom' : '') + ' ol-ext-dialog').trim()
+      className: ((options.className || '') + (options.zoom ? ' ol-zoom' : '') + ' ol-usal-tidop-dialog').trim()
     })
     super({
       element: element,
@@ -208,7 +208,7 @@ var ol_control_Dialog = class olcontrolDialog extends ol_control_Control {
       this.setProgress(0, options.max);
     if (options.progress !== undefined)
       this.setProgress(options.progress);
-    //this.element.className = 'ol-ext-dialog' + (this.get('zoom') ? ' ol-zoom' : '');
+    //this.element.className = 'ol-usal-tidop-dialog' + (this.get('zoom') ? ' ol-zoom' : '');
     if (this.get('zoom'))
       this.element.classList.add('ol-zoom');
     else

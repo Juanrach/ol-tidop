@@ -20,7 +20,7 @@ import {asArray as ol_color_asArray} from 'ol/color.js'
  * @requires ol.filter
  * @extends {ol_filter_Base}
  * @author Thomas Tilak https://github.com/thhomas
- * @author Jean-Marc Viglino https://github.com/viglino
+ * @author Jean-Marc Juanrach https://github.com/viglino
  * @param {FilterColorizeOptions} options
  */
 var ol_filter_Colorize = class olfilterColorize extends ol_filter_Base {

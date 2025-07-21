@@ -5,7 +5,7 @@
   Copyright (c) 2015-2018 Jean-Marc VIGLINO,
   released under CeCILL-B (french BSD like) licence: http://www.cecill.info/
 -->
-  <title>ol-ext: FixedPopup overlay</title>
+  <title>ol-usal-tidop: FixedPopup overlay</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
 
@@ -20,9 +20,9 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
 
   
-  <!-- ol-ext -->
-  <link rel="stylesheet" href="../../dist/ol-ext.css" />
-  <script type="text/javascript" src="../../dist/ol-ext.js"></script>
+  <!-- ol-usal-tidop -->
+  <link rel="stylesheet" href="../../dist/ol-usal-tidop.css" />
+  <script type="text/javascript" src="../../dist/ol-usal-tidop.js"></script>
   <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
   <script src="https://unpkg.com/elm-pep"></script>
 
@@ -91,10 +91,10 @@
 
 </head>
 <body >
-  <a href="https://github.com/Viglino/ol-ext" class="icss-github-corner"><i></i></a>
+  <a href="https://github.com/Juanrach/ol-usal-tidop" class="icss-github-corner"><i></i></a>
 
   <a href="../../index.html">
-    <h1>ol-ext: FixedPopup overlay</h1>
+    <h1>ol-usal-tidop: FixedPopup overlay</h1>
   </a>
 
   <div class="info">
@@ -204,7 +204,7 @@
     var content = "";
     content += "<img src='" + '//wsrv.nl/?url=' + feature.get("img") + "'/>";
     content += feature.get("text");
-    content += '<br/><i>powered by <a href="https://github.com/Viglino/ol-ext" target="ol">ol-ext</a></i>';
+    content += '<br/><i>powered by <a href="https://github.com/Juanrach/ol-usal-tidop" target="ol">ol-usal-tidop</a></i>';
     if (select.getFeatures().getLength()>1) {
       popup2.show(feature.getGeometry().getFirstCoordinate(), content); 
     } else {

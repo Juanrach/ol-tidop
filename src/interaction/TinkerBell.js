@@ -4,7 +4,7 @@
   Copyright (c) 2015 Jean-Marc VIGLINO, 
   released under the CeCILL-B license (French BSD license)
   (http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt).
-  @link https://github.com/Viglino
+  @link https://github.com/Juanrach
 */
 
 import {unByKey as ol_Observable_unByKey} from 'ol/Observable.js'

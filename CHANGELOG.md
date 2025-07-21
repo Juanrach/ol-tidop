@@ -18,7 +18,7 @@ If you use jQuery in your project you may have to pass options using the `$obj.g
 Start removing jQuery dependencies.
 
 ## v3.0.0 2018-07-18
-Migrate to ol5 modules [#123](https://github.com/Viglino/ol-ext/issues/123)
+Migrate to ol5 modules [#123](https://github.com/Juanrach/ol-usal-tidop/issues/123)
 
 ## v2.0.6 2018-07-14
 Last version using ol<5    
@@ -36,16 +36,16 @@ Use ./dist in a web page
 
 ## v1.1.3 2018-02-07
 This is the last v1 release.
-- Next release (v2) will use ES6 module syntax [#33](https://github.com/Viglino/ol3-ext/issues/33).
-- Switch to the `./dist/ol-ext.js` to keep on running on next version.
+- Next release (v2) will use ES6 module syntax [#33](https://github.com/Juanrach/ol3-ext/issues/33).
+- Switch to the `./dist/ol-usal-tidop.js` to keep on running on next version.
 
 ## v1.1.2 2017-12
-**change project name ol-ext is now ol-ext**
-- add doc-pages [#53](https://github.com/Viglino/ol3-ext/issues/53)
-- see [#65](https://github.com/Viglino/ol3-ext/issues/65)
+**change project name ol-usal-tidop is now ol-usal-tidop**
+- add doc-pages [#53](https://github.com/Juanrach/ol3-ext/issues/53)
+- see [#65](https://github.com/Juanrach/ol3-ext/issues/65)
 
 ## v1.0.0 2016-11-12
-see [#8](https://github.com/Viglino/ol3-ext/issues/8) and [#10](https://github.com/Viglino/ol3-ext/issues/10)
+see [#8](https://github.com/Juanrach/ol3-ext/issues/8) and [#10](https://github.com/Juanrach/ol3-ext/issues/10)
 -  `ol.control.Toggle` inherits from `ol.control.Button` (this means you have to add the ol.control.Button.js to your pages).
 - Move subbar from `ol.control.Bar` to `ol.control.Toggle`.    
 Instead of:

@@ -24,13 +24,13 @@
     "prepack": "gulp lib"
   },
   "author": {
-    "name": "Jean-Marc Viglino",
-    "url": "https://github.com/Viglino"
+    "name": "Jean-Marc Juanrach",
+    "url": "https://github.com/Juanrach"
   },
   "bugs": {
-    "url": "https://github.com/Viglino/ol-ext/issues"
+    "url": "https://github.com/Juanrach/ol-usal-tidop/issues"
   },
-  "homepage": "https://github.com/Viglino/ol-ext#,",
+  "homepage": "https://github.com/Juanrach/ol-usal-tidop#,",
   "keywords": [
     "ol3",
     "openlayers",
@@ -51,7 +51,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Viglino/ol-ext.git"
+    "url": "git+https://github.com/Juanrach/ol-usal-tidop.git"
   },
   "license": "BSD-3-Clause"
 }

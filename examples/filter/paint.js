@@ -34,7 +34,7 @@ map.addControl(plink);
 $('.frame h2').click(function() {
   var name = prompt('Title', $(this).text());
   plink.setUrlParam('title', name || '');
-  $(this).text(name || 'ol-ext');
+  $(this).text(name || 'ol-usal-tidop');
 });
 
 // Info

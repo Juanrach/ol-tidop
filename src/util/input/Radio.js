@@ -15,7 +15,7 @@ var ol_ext_input_Radio = class olextinputRadio extends ol_ext_input_Checkbox {
 
     super(options);
 
-    this.element.className = ('ol-ext-check ol-ext-radio ' + (options.className || '')).trim();
+    this.element.className = ('ol-usal-tidop-check ol-usal-tidop-radio ' + (options.className || '')).trim();
   }
 }
   

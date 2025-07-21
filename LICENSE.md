@@ -1,8 +1,8 @@
 # LICENCE
 
-ol-ext (c) 2016-2018 - Jean-Marc Viglino, IGN-France
+ol-usal-tidop (c) 2016-2018 - Jean-Marc Juanrach, IGN-France
 
-[ol-ext](https://github.com/Viglino/ol-ext) is licenced under the French Opensource **BSD** compatible CeCILL-B FREE SOFTWARE LICENSE.
+[ol-usal-tidop](https://github.com/Juanrach/ol-usal-tidop) is licenced under the French Opensource **BSD** compatible CeCILL-B FREE SOFTWARE LICENSE.
 
 Some resources (mapping services and API) used in this sofware may have a specific license.
 You must check before use.

@@ -1,10 +1,10 @@
 /* Toggle Switch */
-.ol-ext-toggle-switch {
+.ol-usal-tidop-toggle-switch {
   cursor: pointer;
   position: relative;
 }
-.ol-ext-toggle-switch input[type="radio"],
-.ol-ext-toggle-switch input[type="checkbox"] {
+.ol-usal-tidop-toggle-switch input[type="radio"],
+.ol-usal-tidop-toggle-switch input[type="checkbox"] {
   /* display: none; */
   opacity: 0;
   width: 0;
@@ -13,7 +13,7 @@
   padding: 0;
   display: inline-block;
 }
-.ol-ext-toggle-switch span {
+.ol-usal-tidop-toggle-switch span {
   color: rgba(0,60,136,.5);
   position: relative;
   cursor: pointer;
@@ -27,7 +27,7 @@
   vertical-align: middle;
   margin: -.15em .2em .15em;
 }
-.ol-ext-toggle-switch span:before {
+.ol-usal-tidop-toggle-switch span:before {
   position: absolute;
   content: "";
   height: 1em;
@@ -42,27 +42,27 @@
   border: 2px solid #ccc;
   box-sizing: border-box;
 }
-.ol-ext-toggle-switch:hover span {
+.ol-usal-tidop-toggle-switch:hover span {
   background-color: #999;
 }
-.ol-ext-toggle-switch:hover span:before {
+.ol-usal-tidop-toggle-switch:hover span:before {
   border-color: #999;
 }
 
-.ol-ext-toggle-switch input:checked + span {
+.ol-usal-tidop-toggle-switch input:checked + span {
   background-color: currentColor;
 }
-.ol-ext-toggle-switch input:checked + span:before {
+.ol-usal-tidop-toggle-switch input:checked + span:before {
   transform: translate(.6em,-50%);
   border-color: currentColor;
 }
 
 /* Check/radio buttons */
-.ol-ext-check {
+.ol-usal-tidop-check {
   position: relative;
   display: inline-block;
 }
-.ol-ext-check input {
+.ol-usal-tidop-check input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
@@ -72,7 +72,7 @@
   padding: 0;
   display: inline-block;
 }
-.ol-ext-check span {
+.ol-usal-tidop-check span {
   color: rgba(0,60,136,.5);
   position: relative;
   display: inline-block;
@@ -82,13 +82,13 @@
   background-color: #ccc;
   vertical-align: middle;
 }
-.ol-ext-check:hover span {
+.ol-usal-tidop-check:hover span {
   background-color: #999;
 }
-.ol-ext-checkbox input:checked ~ span {
+.ol-usal-tidop-checkbox input:checked ~ span {
   background-color: currentColor;
 }
-.ol-ext-checkbox input:checked ~ span:before {
+.ol-usal-tidop-checkbox input:checked ~ span:before {
   content: "";
   position: absolute;
   width: .5em;
@@ -99,15 +99,15 @@
   box-shadow: inset -0.2em -0.2em #fff;
 }
 
-.ol-ext-radio span {
+.ol-usal-tidop-radio span {
   width: 1.1em;
   height: 1.1em;
   border-radius: 50%;
 }
-.ol-ext-radio:hover input:checked ~ span {
+.ol-usal-tidop-radio:hover input:checked ~ span {
   background-color: #ccc;
 }
-.ol-ext-radio input:checked ~ span:before {
+.ol-usal-tidop-radio input:checked ~ span:before {
   content: "";
   position: absolute;
   width: 50%;
@@ -120,9 +120,9 @@
 }
 
 /* focus */
-.ol-ext-toggle-switch input:focus-visible + span {
+.ol-usal-tidop-toggle-switch input:focus-visible + span {
   box-shadow: inset 0 0 0 1px #fff, 0 0 0 1.8px rgba(0,0,0,.8);
 }
-.ol-ext-check input:focus-visible + span {
+.ol-usal-tidop-check input:focus-visible + span {
   box-shadow: inset 0 0 0 1px #fff, 0 0 0 1.8px rgba(0,0,0,.8);
 }
