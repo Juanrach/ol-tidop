@@ -7213,6 +7213,1086 @@ ol.control.LayerSwitcher.prototype.tip = {
   plus: "expand/shrink"
 };
 
+/*	Copyright (c) 2015 Jean-Marc VIGLINO, 
+  released under the CeCILL-B license (French BSD license)
+  (http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt).
+*/
+// ol < 6 compatibility VectorImage is not defined
+// 
+/** Layer Switcher Control.
+ * @fires select
+ * @fires drawlist
+ * @fires toggle
+ * @fires reorder-start
+ * @fires reorder-end
+ * @fires layer:visible
+ * @fires layer:opacity
+ * @fires layer:keydown
+ * 
+ * @constructor
+ * @extends {ol.control.Control}
+ * @param {Object=} options
+ *  @param {boolean} options.selection enable layer selection when click on the title
+ *  @param {function} options.displayInLayerSwitcher function that takes a layer and return a boolean if the layer is displayed in the switcher, default test the displayInLayerSwitcher layer attribute
+ *  @param {boolean} options.show_progress show a progress bar on tile layers, default false
+ *  @param {boolean} options.mouseover show the panel on mouseover, default false
+ *  @param {boolean} options.reordering allow layer reordering, default true
+ *  @param {boolean} options.trash add a trash button to delete the layer, default false
+ *  @param {function} options.oninfo callback on click on info button, if none no info button is shown DEPRECATED: use on(info) instead
+ *  @param {boolean} options.extent add an extent button to zoom to the extent of the layer
+ *  @param {function} options.onextent callback when click on extent, default fits view to extent
+ *  @param {number} options.drawDelay delay in ms to redraw the layer (usefull to prevent flickering when manipulating the layers)
+ *  @param {boolean} options.collapsed collapse the layerswitcher at beginning, default true
+ *  @param {ol.layer.Group} options.layerGroup a layer group to display in the switcher, default display all layers of the map
+ *  @param {boolean} options.noScroll prevent handle scrolling, default false
+ *  @param {boolean} options.counter layer counter, default false
+ *  @param {function} options.onchangeCheck optional callback on click on checkbox, you can call this method for doing operations after check/uncheck a layer
+ *
+ * Layers attributes that control the switcher
+ *	- allwaysOnTop {boolean} true to force layer stay on top of the others while reordering, default false
+ *	- displayInLayerSwitcher {boolean} display the layer in switcher, default true
+ *	- noSwitcherDelete {boolean} to prevent layer deletion (w. trash option = true), default false
+ */
+ol.control.LayerSwitcherTidop = class olcontrolLayerSwitcherTidop extends ol.control.Control {
+  constructor(options) {
+    options = options || {}
+    var element = ol.ext.element.create('DIV', {
+      className: options.switcherClass || 'ol-layerswitcher-tidop'
+    })
+    super({
+      element: element,
+      target: options.target
+    })
+    var self = this
+    this.dcount = 0
+    this.show_progress = options.show_progress
+    this.oninfo = (typeof (options.oninfo) == 'function' ? options.oninfo : null)
+    this.onextent = (typeof (options.onextent) == 'function' ? options.onextent : null)
+    this.hasextent = options.extent || options.onextent
+    this.hastrash = options.trash
+    this.reordering = (options.reordering !== false)
+    this._layers = []
+    this._layerGroup = (options.layerGroup && options.layerGroup.getLayers) ? options.layerGroup : null
+    this.onchangeCheck = (typeof (options.onchangeCheck) == "function" ? options.onchangeCheck : null)
+    // displayInLayerSwitcher
+    if (typeof (options.displayInLayerSwitcher) === 'function') {
+      this.displayInLayerSwitcher = options.displayInLayerSwitcher
+    }
+    // Insert in the map
+    if (!options.target) {
+      element.classList.add('ol-unselectable')
+      element.classList.add('ol-control')
+      element.classList.add(options.collapsed !== false ? 'ol-collapsed' : 'ol-forceopen')
+      if (options.counter) element.classList.add('ol-counter')
+      this.counter = ol.ext.element.create('SPAN', {
+        class: 'ol-counter',
+        text: 0,
+        parent: element
+      });
+      this.button = ol.ext.element.create('BUTTON', {
+        type: 'button',
+        parent: element
+      })
+      this.button.addEventListener('touchstart', function (e) {
+        element.classList.toggle('ol-forceopen')
+        element.classList.add('ol-collapsed')
+        self.dispatchEvent({ type: 'toggle', collapsed: element.classList.contains('ol-collapsed') })
+        e.preventDefault()
+        self.overflow()
+      })
+      this.button.addEventListener('click', function () {
+        element.classList.toggle('ol-forceopen')
+        element.classList.add('ol-collapsed')
+        self.dispatchEvent({ type: 'toggle', collapsed: !element.classList.contains('ol-forceopen') })
+        self.overflow()
+      })
+      if (options.mouseover) {
+        element.addEventListener('mouseleave', function () {
+          element.classList.add("ol-collapsed")
+          self.dispatchEvent({ type: 'toggle', collapsed: true })
+        })
+        element.addEventListener('mouseover', function () {
+          element.classList.remove("ol-collapsed")
+          self.dispatchEvent({ type: 'toggle', collapsed: false })
+        })
+      }
+      if (options.minibar)
+        options.noScroll = true
+      if (!options.noScroll) {
+        this.topv = ol.ext.element.create('DIV', {
+          className: 'ol-switchertopdiv',
+          parent: element,
+          click: function () {
+            self.overflow("+50%")
+          }
+        })
+        this.botv = ol.ext.element.create('DIV', {
+          className: 'ol-switcherbottomdiv',
+          parent: element,
+          click: function () {
+            self.overflow("-50%")
+          }
+        })
+      }
+      this._noScroll = options.noScroll
+    }
+    this.panel_ = ol.ext.element.create('UL', {
+      className: 'panel',
+    })
+    this.panelContainer_ = ol.ext.element.create('DIV', {
+      className: 'panel-container',
+      html: this.panel_,
+      parent: element
+    })
+    // Handle mousewheel
+    if (!options.target && !options.noScroll) {
+      ol.ext.element.addListener(this.panel_, 'mousewheel DOMMouseScroll onmousewheel', function (e) {
+        if (self.overflow(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))))) {
+          e.stopPropagation()
+          e.preventDefault()
+        }
+      })
+    }
+    this.header_ = ol.ext.element.create('LI', {
+      className: 'ol-header',
+      parent: this.panel_
+    })
+    this.set('drawDelay', options.drawDelay || 0)
+    this.set('selection', options.selection)
+    if (options.minibar) {
+      // Wait init complete (for child classes)
+      setTimeout(function () {
+        var mbar = ol.ext.element.scrollDiv(this.panelContainer_, {
+          mousewheel: true,
+          vertical: true,
+          minibar: true
+        })
+        this.on(['drawlist', 'toggle'], function () {
+          mbar.refresh()
+        })
+      }.bind(this))
+    }
+  }
+  /** Test if a layer should be displayed in the switcher
+   * @param {ol.layer} layer
+   * @return {boolean} true if the layer is displayed
+   */
+  displayInLayerSwitcher(layer) {
+    return (layer.get('displayInLayerSwitcher') !== false)
+  }
+  /**
+   * Set the map instance the control is associated with.
+   * @param {_ol_Map_} map The map instance.
+   */
+  setMap(map) {
+    super.setMap(map)
+    this.drawPanel()
+    if (this._listener) {
+      for (var i in this._listener){
+        ol.Observable.unByKey(this._listener[i])
+      }
+    }
+    this._listener = null
+    // Get change (new layer added or removed)
+    if (map) {
+      this._listener = {
+        moveend: map.on('moveend', this.viewChange.bind(this)),
+        size: map.on('change:size', this.overflow.bind(this))
+      }
+      // Listen to a layer group
+      if (this._layerGroup) {
+        this._listener.change = this._layerGroup.getLayers().on('change:length', this.drawPanel.bind(this))
+      } else {
+        //Listen to all layers
+        this._listener.change = map.getLayerGroup().getLayers().on('change:length', this.drawPanel.bind(this))
+      }
+    }
+  }
+  /** Show control
+   */
+  show() {
+    this.element.classList.add('ol-forceopen')
+    this.overflow()
+    this.dispatchEvent({ type: 'toggle', collapsed: false })
+  }
+  /** Hide control
+   */
+  hide() {
+    this.element.classList.remove('ol-forceopen')
+    this.overflow()
+    this.dispatchEvent({ type: 'toggle', collapsed: true })
+  }
+  /** Toggle control
+   */
+  toggle() {
+    this.element.classList.toggle("ol-forceopen")
+    this.overflow()
+    this.dispatchEvent({ type: 'toggle', collapsed: !this.isOpen() })
+  }
+  /** Is control open
+   * @return {boolean}
+   */
+  isOpen() {
+    return this.element.classList.contains("ol-forceopen")
+  }
+  /** Add a custom header
+   * @param {Element|string} html content html
+   */
+  setHeader(html) {
+    ol.ext.element.setHTML(this.header_, html)
+  }
+  /** Calculate overflow and add scrolls
+   * @param {Number} dir scroll direction -1|0|1|'+50%'|'-50%'
+   * @private
+   */
+  overflow(dir) {
+    if (this.button && !this._noScroll) {
+      // Nothing to show
+      if (ol.ext.element.hidden(this.panel_)) {
+        ol.ext.element.setStyle(this.element, { height: 'auto' })
+        return
+      }
+      // Calculate offset
+      var h = ol.ext.element.outerHeight(this.element)
+      var hp = ol.ext.element.outerHeight(this.panel_)
+      var dh = this.button.offsetTop + ol.ext.element.outerHeight(this.button)
+      //var dh = this.button.position().top + this.button.outerHeight(true);
+      var top = this.panel_.offsetTop - dh
+      if (hp > h - dh) {
+        // Bug IE: need to have an height defined
+        ol.ext.element.setStyle(this.element, { height: '100%' })
+        var li = this.panel_.querySelectorAll('li.ol-visible .li-content')[0]
+        var lh = li ? 2 * ol.ext.element.getStyle(li, 'height') : 0
+        switch (dir) {
+          case 1: top += lh; break
+          case -1: top -= lh; break
+          case "+50%": top += Math.round(h / 2); break
+          case "-50%": top -= Math.round(h / 2); break
+          default: break
+        }
+        // Scroll div
+        if (top + hp <= h - 3 * dh / 2) {
+          top = h - 3 * dh / 2 - hp
+          ol.ext.element.hide(this.botv)
+        } else {
+          ol.ext.element.show(this.botv)
+        }
+        if (top >= 0) {
+          top = 0
+          ol.ext.element.hide(this.topv)
+        } else {
+          ol.ext.element.show(this.topv)
+        }
+        // Scroll ?
+        ol.ext.element.setStyle(this.panel_, { top: top + "px" })
+        return true
+      } else {
+        ol.ext.element.setStyle(this.element, { height: "auto" })
+        ol.ext.element.setStyle(this.panel_, { top: 0 })
+        ol.ext.element.hide(this.botv)
+        ol.ext.element.hide(this.topv)
+        return false
+      }
+    }
+    else
+      return false
+  }
+  /** Set the layer associated with a li
+   * @param {Element} li
+   * @param {ol.layer} layer
+   * @private
+   */
+  _setLayerForLI(li, layer) {
+    var listeners = []
+    if (layer.getLayers) {
+      listeners.push(layer.getLayers().on('change:length', this.drawPanel.bind(this)))
+    }
+    if (li) {
+      // Handle opacity change
+      listeners.push(layer.on('change:opacity', (function () {
+        this.setLayerOpacity(layer, li)
+      }).bind(this)))
+      // Handle visibility chage
+      listeners.push(layer.on('change:visible', (function () {
+        this.setLayerVisibility(layer, li)
+      }).bind(this)))
+    }
+    // Other properties
+    listeners.push(layer.on('propertychange', (function (e) {
+      if (e.key === 'displayInLayerSwitcher'
+        || e.key === 'openInLayerSwitcher'
+        || e.key === 'title'
+        || e.key === 'name') {
+        this.drawPanel(e)
+      }
+    }).bind(this)))
+    this._layers.push({ li: li, layer: layer, listeners: listeners })
+  }
+  /** Set opacity for a layer
+   * @param {ol.layer.Layer} layer
+   * @param {Element} li the list element
+   * @private
+   */
+  setLayerOpacity(layer, li) {
+    var i = li.querySelector('.layerswitcher-opacity-cursor')
+    if (i){
+      i.style.left = (layer.getOpacity() * 100) + "%"
+    }
+    this.dispatchEvent({ type: 'layer:opacity', layer: layer })
+  }
+  /** Set visibility for a layer
+   * @param {ol.layer.Layer} layer
+   * @param {Element} li the list element
+   * @api
+   */
+  setLayerVisibility(layer, li) {
+    var i = li.querySelector('.ol-visibility')
+    if (i) {
+      i.checked = layer.getVisible()
+    }
+    if (layer.getVisible()){
+      li.classList.add('ol-visible')
+    } else{
+      li.classList.remove('ol-visible')
+    }
+    this.dispatchEvent({ type: 'layer:visible', layer: layer })
+  }
+  /** Clear layers associated with li
+   * @private
+   */
+  _clearLayerForLI() {
+    this._layers.forEach(function (li) {
+      li.listeners.forEach(function (l) {
+        ol.Observable.unByKey(l)
+      })
+    })
+    this._layers = []
+  }
+  /** Get the layer associated with a li
+   * @param {Element} li
+   * @return {ol.layer}
+   * @private
+   */
+  _getLayerForLI(li) {
+    for (var i = 0, l; l = this._layers[i]; i++) {
+      if (l.li === li) {
+        return l.layer
+      }
+    }
+    return null
+  }
+  /**
+   * On view change hide layer depending on resolution / extent
+   * @private
+   */
+  viewChange() {
+    this.panel_.querySelectorAll('li').forEach(function (li) {
+      var l = this._getLayerForLI(li)
+      if (l) {
+        if (this.testLayerVisibility(l)) {
+          li.classList.remove('ol-layer-hidden')
+        } else {
+          li.classList.add('ol-layer-hidden')
+        }
+      }
+    }.bind(this))
+  }
+  /** Get control panel
+   * @api
+   */
+  getPanel() {
+    return this.panelContainer_
+  }
+  /** Draw the panel control (prevent multiple draw due to layers manipulation on the map with a delay function)
+   * @api
+   */
+  drawPanel() {
+    if (!this.getMap())
+      return
+    var self = this
+    // Multiple event simultaneously / draw once => put drawing in the event queue
+    this.dcount++
+    setTimeout(function () { self.drawPanel_() }, this.get('drawDelay') || 0)
+  }
+  /** Delayed draw panel control
+   * @private
+   */
+  drawPanel_() {
+    if (--this.dcount || this.dragging_) {
+      return
+    }
+    var scrollTop = this.panelContainer_.scrollTop
+    // Remove existing layers
+    this._clearLayerForLI()
+    this.panel_.querySelectorAll('li').forEach(function (li) {
+      if (!li.classList.contains('ol-header')) li.remove()
+    }.bind(this))
+    // Draw list
+    if (this._layerGroup) {
+      this.drawList(this.panel_, this._layerGroup.getLayers())
+    } else if (this.getMap()) {
+      this.drawList(this.panel_, this.getMap().getLayers())
+    }
+    // Reset scrolltop
+    this.panelContainer_.scrollTop = scrollTop
+    // Counter
+    this.counter.innerHTML = this.panel_.parentNode.querySelectorAll('ul.panel > li:not(.ol-header)').length;
+  }
+  /** Change layer visibility according to the baselayer option
+   * @param {ol.layer}
+   * @param {Array<ol.layer>} related layers
+   * @private
+   */
+  switchLayerVisibility(l, layers) {
+    if (!l.get('baseLayer')) {
+      l.setVisible(!l.getVisible())
+    } else {
+      if (!l.getVisible()) {
+        l.setVisible(true)
+      }
+      layers.forEach(function (li) {
+        if (l !== li && li.get('baseLayer') && li.getVisible()) {
+          li.setVisible(false)
+        }
+      })
+    }
+  }
+  /** Check if layer is on the map (depending on resolution / zoom and extent)
+   * @param {ol.layer}
+   * @return {boolean}
+   * @private
+   */
+  testLayerVisibility(layer) {
+    if (!this.getMap())
+      return true
+    var res = this.getMap().getView().getResolution()
+    var zoom = this.getMap().getView().getZoom()
+    // Calculate visibility on resolution or zoom
+    if (layer.getMaxResolution() <= res || layer.getMinResolution() >= res) {
+      return false
+    } else if (layer.getMinZoom && (layer.getMinZoom() >= zoom || layer.getMaxZoom() < zoom)) {
+      return false
+    } else {
+      // Check extent
+      var ex0 = layer.getExtent()
+      if (ex0) {
+        var ex = this.getMap().getView().calculateExtent(this.getMap().getSize())
+        return ol.extent.intersects(ex, ex0)
+      }
+      return true
+    }
+  }
+  /** Start ordering the list
+  *	@param {event} e drag event
+  *	@private
+  */
+  dragOrdering_(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    // Get params
+    var self = this
+    var elt = e.currentTarget.parentNode.parentNode
+    var start = true
+    var panel = this.panel_
+    var pageY
+    var pageY0 = e.pageY
+      || (e.touches && e.touches.length && e.touches[0].pageY)
+      || (e.changedTouches && e.changedTouches.length && e.changedTouches[0].pageY)
+    var target, dragElt
+    var layer, group
+    elt.parentNode.classList.add('drag')
+    // Stop ordering
+    function stop() {
+      if (target) {
+        // Get drag on parent
+        var drop = layer
+        var isSelected = self.getSelection() === drop
+        if (drop && target) {
+          var collection
+          if (group) {
+            collection = group.getLayers()
+          } else {
+            collection = self._layerGroup ? self._layerGroup.getLayers() : self.getMap().getLayers()
+          }
+          var layers = collection.getArray()
+          // Switch layers
+          for (var i = 0; i < layers.length; i++) {
+            if (layers[i] == drop) {
+              collection.removeAt(i)
+              break
+            }
+          }
+          for (var j = 0; j < layers.length; j++) {
+            if (layers[j] === target) {
+              if (i > j) {
+                collection.insertAt(j, drop)
+              } else {
+                collection.insertAt(j + 1, drop)
+              }
+              break
+            }
+          }
+        }
+        if (isSelected) self.selectLayer(drop)
+        self.dispatchEvent({ type: "reorder-end", layer: drop, group: group })
+      }
+      elt.parentNode.querySelectorAll('li').forEach(function (li) {
+        li.classList.remove('dropover')
+        li.classList.remove('dropover-after')
+        li.classList.remove('dropover-before')
+      })
+      elt.classList.remove("drag")
+      elt.parentNode.classList.remove("drag")
+      self.element.classList.remove('drag')
+      if (dragElt)
+        dragElt.remove()
+      ol.ext.element.removeListener(document, 'mousemove touchmove', move)
+      ol.ext.element.removeListener(document, 'mouseup touchend touchcancel', stop)
+    }
+    // Ordering
+    function move(e) {
+      // First drag (more than 2 px) => show drag element (ghost)
+      pageY = e.pageY
+        || (e.touches && e.touches.length && e.touches[0].pageY)
+        || (e.changedTouches && e.changedTouches.length && e.changedTouches[0].pageY)
+      if (start && Math.abs(pageY0 - pageY) > 2) {
+        start = false
+        elt.classList.add("drag")
+        layer = self._getLayerForLI(elt)
+        target = false
+        group = self._getLayerForLI(elt.parentNode.parentNode)
+        // Ghost div
+        dragElt = ol.ext.element.create('LI', {
+          className: 'ol-dragover',
+          html: elt.innerHTML,
+          style: {
+            position: "absolute",
+            "z-index": 10000,
+            left: elt.offsetLeft,
+            opacity: 0.5,
+            width: ol.ext.element.outerWidth(elt),
+            height: ol.ext.element.getStyle(elt, 'height'),
+          },
+          parent: panel
+        })
+        self.element.classList.add('drag')
+        self.dispatchEvent({ type: "reorder-start", layer: layer, group: group })
+      }
+      // Start a new drag sequence
+      if (!start) {
+        e.preventDefault()
+        e.stopPropagation()
+        // Ghost div
+        ol.ext.element.setStyle(dragElt, { top: pageY - ol.ext.element.offsetRect(panel).top + panel.scrollTop + 5 })
+        var li
+        if (!e.touches) {
+          li = e.target
+          // Get the HTML node within web component on click drag
+          if(e.target.shadowRoot){
+            li = e.composedPath()[0]
+          }
+        } else {
+          li = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+          //Get actual HTML node within web component on touch drag
+          while(li.shadowRoot){
+            li = li.shadowRoot.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY)
+          }
+        }
+        if (li.classList.contains("ol-switcherbottomdiv")) {
+          self.overflow(-1)
+        } else if (li.classList.contains("ol-switchertopdiv")) {
+          self.overflow(1)
+        }
+        // Get associated li
+        while (li && li.tagName !== 'LI') {
+          li = li.parentNode
+        }
+        if (!li || !li.classList.contains('dropover')) {
+          elt.parentNode.querySelectorAll('li').forEach(function (li) {
+            li.classList.remove('dropover')
+            li.classList.remove('dropover-after')
+            li.classList.remove('dropover-before')
+          })
+        }
+        if (li && li.parentNode.classList.contains('drag') && li !== elt) {
+          target = self._getLayerForLI(li)
+          // Don't mix layer level
+          if (target && !target.get('allwaysOnTop') == !layer.get('allwaysOnTop')) {
+            li.classList.add("dropover")
+            li.classList.add((elt.offsetTop < li.offsetTop) ? 'dropover-after' : 'dropover-before')
+          } else {
+            target = false
+          }
+          ol.ext.element.show(dragElt)
+        } else {
+          target = false
+          if (li === elt)
+            ol.ext.element.hide(dragElt)
+          else
+            ol.ext.element.show(dragElt)
+        }
+        if (!target)
+          dragElt.classList.add("forbidden")
+        else
+          dragElt.classList.remove("forbidden")
+      }
+    }
+    // Start ordering
+    ol.ext.element.addListener(document, 'mousemove touchmove', move)
+    ol.ext.element.addListener(document, 'mouseup touchend touchcancel', stop)
+  }
+  /** Change opacity on drag
+  *	@param {event} e drag event
+  *	@private
+  */
+  dragOpacity_(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    var self = this
+    // Register start params
+    var elt = e.target
+    var layer = this._getLayerForLI(elt.parentNode.parentNode.parentNode)
+    if (!layer)
+      return
+    var x = e.pageX
+      || (e.touches && e.touches.length && e.touches[0].pageX)
+      || (e.changedTouches && e.changedTouches.length && e.changedTouches[0].pageX)
+    var start = ol.ext.element.getStyle(elt, 'left') - x
+    self.dragging_ = true
+    // stop dragging
+    function stop() {
+      ol.ext.element.removeListener(document, "mouseup touchend touchcancel", stop)
+      ol.ext.element.removeListener(document, "mousemove touchmove", move)
+      self.dragging_ = false
+    }
+    // On draggin
+    function move(e) {
+      var x = e.pageX
+        || (e.touches && e.touches.length && e.touches[0].pageX)
+        || (e.changedTouches && e.changedTouches.length && e.changedTouches[0].pageX)
+      var delta = (start + x) / ol.ext.element.getStyle(elt.parentNode, 'width')
+      var opacity = Math.max(0, Math.min(1, delta))
+      ol.ext.element.setStyle(elt, { left: (opacity * 100) + "%" })
+      elt.parentNode.nextElementSibling.innerHTML = Math.round(opacity * 100)
+      layer.setOpacity(opacity)
+    }
+    // Register move
+    ol.ext.element.addListener(document, "mouseup touchend touchcancel", stop)
+    ol.ext.element.addListener(document, "mousemove touchmove", move)
+  }
+  /** Render a list of layer
+   * @param {Elemen} element to render
+   * @layers {Array{ol.layer}} list of layer to show
+   * @api stable
+   * @private
+   */
+  drawList(ul, collection) {
+    var self = this
+    var layers = collection.getArray()
+    // Change layer visibility
+    var setVisibility = function (e) {
+      e.stopPropagation()
+      e.preventDefault()
+      var l = self._getLayerForLI(this.parentNode.parentNode)
+      self.switchLayerVisibility(l, collection)
+      if (self.get('selection') && l.getVisible()) {
+        self.selectLayer(l)
+      }
+      if (self.onchangeCheck) {
+        self.onchangeCheck(l)
+      }
+    }
+    // Info button click
+    function onInfo(e) {
+      e.stopPropagation()
+      e.preventDefault()
+      var l = self._getLayerForLI(this.parentNode.parentNode)
+      self.oninfo(l)
+      self.dispatchEvent({ type: "info", layer: l })
+    }
+    // Zoom to extent button
+    function zoomExtent(e) {
+      e.stopPropagation()
+      e.preventDefault()
+      var l = self._getLayerForLI(this.parentNode.parentNode)
+      if (self.onextent) {
+        self.onextent(l)
+      } else {
+        self.getMap().getView().fit(l.getExtent(), self.getMap().getSize())
+      }
+      self.dispatchEvent({ type: "extent", layer: l })
+    }
+    // Remove a layer on trash click
+    function removeLayer(e) {
+      e.stopPropagation()
+      e.preventDefault()
+      var li = this.parentNode.parentNode.parentNode.parentNode
+      var layer, group = self._getLayerForLI(li)
+      // Remove the layer from a group or from a map
+      if (group) {
+        layer = self._getLayerForLI(this.parentNode.parentNode)
+        group.getLayers().remove(layer)
+        if (group.getLayers().getLength() == 0 && !group.get('noSwitcherDelete')) {
+          removeLayer.call(li.querySelectorAll('.layerTrash')[0], e)
+        }
+      } else {
+        li = this.parentNode.parentNode
+        self.getMap().removeLayer(self._getLayerForLI(li))
+      }
+    }
+    // Create a list for a layer
+    function createLi(layer) {
+      if (!this.displayInLayerSwitcher(layer)) {
+        this._setLayerForLI(null, layer)
+        return
+      }
+      var li = ol.ext.element.create('LI', {
+        className: (layer.getVisible() ? "ol-visible " : " ") + (layer.get('baseLayer') ? "baselayer" : ""),
+        parent: ul
+      })
+      this._setLayerForLI(li, layer)
+      if (this._selectedLayer === layer) {
+        li.classList.add('ol-layer-select')
+      }
+      var layer_buttons = ol.ext.element.create('DIV', {
+        className: 'ol-layerswitcher-buttons',
+        parent: li
+      })
+      // Content div
+      var d = ol.ext.element.create('DIV', {
+        className: 'li-content',
+        parent: li
+      })
+      // Visibility
+      var input = ol.ext.element.create('INPUT', {
+        type: layer.get('baseLayer') ? 'radio' : 'checkbox',
+        className: 'ol-visibility',
+        checked: layer.getVisible(),
+        click: function(e) {
+          setVisibility.bind(this)(e)
+          setTimeout(function() { e.target.checked = layer.getVisible(); });
+        },
+        on: {
+          // Set opacity on keydown
+          keydown: function(e) {
+            switch (e.key) {
+              // Change opacity on arrow
+              case 'ArrowLeft':
+              case 'ArrowRight': {
+                e.preventDefault();
+                e.stopPropagation();
+                var delta = (e.key==='ArrowLeft' ? -0.1 : 0.1);
+                var opacity = Math.min(1, Math.max(0, layer.getOpacity() + delta))
+                layer.setOpacity(opacity)
+                break;
+              }
+              // Select on enter
+              case 'Enter': {
+                if (self.get('selection')) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  self.selectLayer(layer)
+                }
+                break;
+              }
+              // Expend 
+              case '-': 
+              case '+': {
+                if (layer.getLayers) {
+                  this._focus = layer;
+                  layer.set("openInLayerSwitcher", !layer.get("openInLayerSwitcher"))
+                }
+              }
+              // Move up dans down
+              // fallthrough
+              case 'ArrowUp':
+              case 'ArrowDown': {
+                if (e.ctrlKey && this.reordering) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  var pos = collection.getArray().indexOf(layer);
+                  if (pos > -1) {
+                    if (e.key === 'ArrowDown') {
+                      if (pos > 0) {
+                        collection.remove(layer);
+                        collection.insertAt(pos-1, layer)
+                        self._focus = layer
+                        self.dispatchEvent({ type: "reorder-end", layer: layer })
+                      }
+                    } else {
+                      if (pos < collection.getLength()-1) {
+                        collection.remove(layer);
+                        collection.insertAt(pos+1, layer)
+                        self._focus = layer
+                        self.dispatchEvent({ type: "reorder-end", layer: layer })
+                      }
+                    }
+                  }
+                }
+                break;
+              }
+              default: {
+                var group = this._getLayerForLI(ul.parentNode)
+                this.dispatchEvent({ type: 'layer:keydown', key: e.key, group: group, li: li, layer: layer, originalEvent: e })
+              }
+            }
+          }.bind(this)
+        },
+        parent: d
+      })
+      // Focus on element
+      if (layer === self._focus) {
+        input.focus();
+        self.overflow()
+      }
+      var icon_layer = ''
+      if (layer.get('icon'))
+        icon_layer = '<i class="' + layer.get('icon') +  ' " style="margin-right: 3px;"></i>'
+      // Label
+      var label = ol.ext.element.create('LABEL', {
+        title: layer.get('title') || layer.get('name'),
+        click: setVisibility,
+        style: {
+          userSelect: 'none'
+        },
+        parent: d
+      })
+      label.addEventListener('selectstart', function () { return false })
+      ol.ext.element.create('SPAN', {
+        html: icon_layer + layer.get('title') || layer.get('name'),
+        click: function (e) {
+          if (this.get('selection')) {
+            e.stopPropagation()
+            this.selectLayer(layer)
+          }
+        }.bind(this),
+        parent: label
+      })
+      var extra_layer_data = ol.ext.element.create('DIV', {
+        className: 'extra-layer-data' + ' ' + layer.get('id') + '-extra-layer-data ',
+        parent: d,
+        //html: 'prueba'
+      })
+      //  up/down
+      if (this.reordering) {
+        if ((i < layers.length - 1 && (layer.get("allwaysOnTop") || !layers[i + 1].get("allwaysOnTop")))
+          || (i > 0 && (!layer.get("allwaysOnTop") || layers[i - 1].get("allwaysOnTop")))) {
+          ol.ext.element.create('DIV', {
+            className: 'layerup ol-noscroll',
+            title: this.tip.up,
+            on: { 'mousedown touchstart': function (e) { self.dragOrdering_(e) } },
+            parent: layer_buttons
+          })
+        }
+      }
+      // Show/hide sub layers
+      if (layer.getLayers) {
+        var nb = 0
+        layer.getLayers().forEach(function (l) {
+          if (self.displayInLayerSwitcher(l))
+            nb++
+        })
+        if (nb) {
+          ol.ext.element.create('DIV', {
+            className: layer.get("openInLayerSwitcher") ? "collapse-layers" : "expend-layers",
+            title: this.tip.plus,
+            click: function () {
+              var l = self._getLayerForLI(this.parentNode.parentNode)
+              l.set("openInLayerSwitcher", !l.get("openInLayerSwitcher"))
+            },
+            parent: layer_buttons
+          })
+        }
+      }
+      // Info button
+      if (this.oninfo) {
+        ol.ext.element.create('DIV', {
+          className: 'layerInfo',
+          title: this.tip.info,
+          click: onInfo,
+          parent: layer_buttons
+        })
+      }
+      // Layer remove
+      if (this.hastrash && !layer.get("noSwitcherDelete")) {
+        ol.ext.element.create('DIV', {
+          className: 'layerTrash',
+          title: this.tip.trash,
+          click: removeLayer,
+          parent: layer_buttons
+        })
+      }
+      // Layer extent
+      if (this.hasextent && layers[i].getExtent()) {
+        var ex = layers[i].getExtent()
+        if (ex.length == 4 && ex[0] < ex[2] && ex[1] < ex[3]) {
+          ol.ext.element.create('DIV', {
+            className: 'layerExtent',
+            title: this.tip.extent,
+            click: zoomExtent,
+            parent: layer_buttons
+          })
+        }
+      }
+      // Progress
+      if (this.show_progress && layer instanceof ol.layer.Tile) {
+        var p = ol.ext.element.create('DIV', {
+          className: 'layerswitcher-progress',
+          parent: d
+        })
+        this.setprogress_(layer)
+        layer.layerswitcher_progress = ol.ext.element.create('DIV', { parent: p })
+      }
+      // Opacity
+      var opacity = ol.ext.element.create('DIV', {
+        className: 'layerswitcher-opacity',
+        // Click on the opacity line
+        click: function (e) {
+          if (e.target !== this)
+            return
+          e.stopPropagation()
+          e.preventDefault()
+          var op = Math.max(0, Math.min(1, e.offsetX / ol.ext.element.getStyle(this, 'width')))
+          self._getLayerForLI(this.parentNode.parentNode).setOpacity(op)
+          this.parentNode.querySelectorAll('.layerswitcher-opacity-label')[0].innerHTML = Math.round(op * 100)
+        },
+        parent: d
+      })
+      // Start dragging
+      ol.ext.element.create('DIV', {
+        className: 'layerswitcher-opacity-cursor ol-noscroll',
+        style: { left: (layer.getOpacity() * 100) + "%" },
+        on: {
+          'mousedown touchstart': function (e) { self.dragOpacity_(e) }
+        },
+        parent: opacity
+      })
+      // Percent
+      ol.ext.element.create('DIV', {
+        className: 'layerswitcher-opacity-label',
+        html: Math.round(layer.getOpacity() * 100),
+        parent: d
+      })
+      // Layer group
+      if (layer.getLayers) {
+        li.classList.add('ol-layer-group')
+        if (layer.get("openInLayerSwitcher") === true) {
+          var ul2 = ol.ext.element.create('UL', {
+            parent: li
+          })
+          this.drawList(ul2, layer.getLayers())
+        }
+      }
+      li.classList.add(this.getLayerClass(layer))
+      // Dispatch a dralist event to allow customisation
+      this.dispatchEvent({ type: 'drawlist', layer: layer, li: li })
+    }
+    // Add the layer list
+    for (var i = layers.length - 1; i >= 0; i--) {
+      createLi.call(this, layers[i])
+    }
+    this.viewChange()
+    if (ul === this.panel_) {
+      this.overflow('')
+      // Remove focus
+      this._focus = null;
+    }
+  }
+  /** Select a layer
+   * @param {ol.layer.Layer} layer
+   * @returns {string} the layer classname
+   * @api
+   */
+  getLayerClass(layer) {
+    if (!layer)
+      return 'none'
+    if (layer.getLayers)
+      return 'ol-layer-group'
+    if (layer instanceof ol.layer.Vector)
+      return 'ol-layer-vector'
+    if (layer instanceof ol.layer.VectorTile)
+      return 'ol-layer-vectortile'
+    if (layer instanceof ol.layer.Tile)
+      return 'ol-layer-tile'
+    if (layer instanceof ol.layer.Image)
+      return 'ol-layer-image'
+    if (layer instanceof ol.layer.Heatmap)
+      return 'ol-layer-heatmap'
+    /* ol < 6 compatibility VectorImage is not defined */
+    // if (layer instanceof ol.layer.VectorImage) return 'ol-layer-vectorimage';
+    if (layer.getFeatures)
+      return 'ol-layer-vectorimage'
+    /* */
+    return 'unknown'
+  }
+  /** Select a layer
+   * @param {ol.layer.Layer} layer
+   * @api
+   */
+  selectLayer(layer, silent) {
+    if (!layer) {
+      if (!this.getMap())
+        return
+      layer = this.getMap().getLayers().item(this.getMap().getLayers().getLength() - 1)
+    }
+    this._selectedLayer = layer
+    // Has focus ?
+    if (this.element.querySelector('input.ol-visibility:focus')) {
+      this._focus = layer;
+    }
+    // Draw
+    this.drawPanel()
+    if (!silent) {
+      this.dispatchEvent({ type: 'select', layer: layer })
+    }
+  }
+  /** Get selected layer
+   * @returns {ol.layer.Layer}
+   */
+  getSelection() {
+    return this._selectedLayer
+  }
+  /** Handle progress bar for a layer
+  *	@private
+  */
+  setprogress_(layer) {
+    if (!layer.layerswitcher_progress) {
+      var loaded = 0
+      var loading = 0
+      var draw = function () {
+        if (loading === loaded) {
+          loading = loaded = 0
+          ol.ext.element.setStyle(layer.layerswitcher_progress, { width: 0 }) // layer.layerswitcher_progress.width(0);
+        } else {
+          ol.ext.element.setStyle(layer.layerswitcher_progress, { width: (loaded / loading * 100).toFixed(1) + '%' }) // layer.layerswitcher_progress.css('width', (loaded / loading * 100).toFixed(1) + '%');
+        }
+      }
+      layer.getSource().on('tileloadstart', function () {
+        loading++
+        draw()
+      })
+      layer.getSource().on('tileloadend', function () {
+        loaded++
+        draw()
+      })
+      layer.getSource().on('tileloaderror', function () {
+        loaded++
+        draw()
+      })
+    }
+  }
+}
+/** List of tips for internationalization purposes
+*/
+ol.control.LayerSwitcherTidop.prototype.tip = {
+  up: "up/down",
+  down: "down",
+  info: "informations...",
+  extent: "zoom to extent",
+  trash: "remove layer",
+  plus: "expand/shrink"
+};
+
 /*	Copyright (c) 2016 Jean-Marc VIGLINO,
   released under the CeCILL-B license (French BSD license)
   (http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt).
@@ -11691,6 +12771,111 @@ ol.control.LayerShop = class olcontrolLayerShop extends ol.control.LayerSwitcher
   }
 }
 
+/*	Copyright (c) 2015 Jean-Marc VIGLINO, 
+  released under the CeCILL-B license (French BSD license)
+  (http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt).
+*/
+/** LayerShopTidop a layer switcher with special controls to handle operation on layers.
+ * @fires select
+ * @fires drawlist
+ * @fires toggle
+ * @fires reorder-start
+ * @fires reorder-end
+ * @fires layer:visible
+ * @fires layer:opacity
+ * 
+ * @constructor
+ * @extends {ol.control.LayerSwitcher}
+ * @param {Object=} options
+ *  @param {boolean} options.selection enable layer selection when click on the title
+ *  @param {function} options.displayInLayerSwitcher function that takes a layer and return a boolean if the layer is displayed in the switcher, default test the displayInLayerSwitcher layer attribute
+ *  @param {boolean} options.show_progress show a progress bar on tile layers, default false
+ *  @param {boolean} options.mouseover show the panel on mouseover, default false
+ *  @param {boolean} options.reordering allow layer reordering, default true
+ *  @param {boolean} options.trash add a trash button to delete the layer, default false
+ *  @param {function} options.oninfo callback on click on info button, if none no info button is shown DEPRECATED: use on(info) instead
+ *  @param {boolean} options.extent add an extent button to zoom to the extent of the layer
+ *  @param {function} options.onextent callback when click on extent, default fits view to extent
+ *  @param {number} options.drawDelay delay in ms to redraw the layer (usefull to prevent flickering when manipulating the layers)
+ *  @param {boolean} options.collapsed collapse the layerswitcher at beginning, default true
+ *  @param {ol.layer.Group} options.layerGroup a layer group to display in the switcher, default display all layers of the map
+ *  @param {boolean} options.noScroll prevent handle scrolling, default false
+ *
+ * Layers attributes that control the switcher
+ *	- allwaysOnTop {boolean} true to force layer stay on top of the others while reordering, default false
+ *	- displayInLayerSwitcher {boolean} display the layer in switcher, default true
+ *	- noSwitcherDelete {boolean} to prevent layer deletion (w. trash option = true), default false
+ */
+ol.control.LayerShopTidop = class olcontrolLayerShopTidop extends ol.control.LayerSwitcherTidop {
+  constructor(options) {
+    options = options || {};
+    options.selection = true;
+    options.noScroll = true;
+    super(options);
+    this.element.classList.add('ol-layer-shop-tidop');
+    // Control title (selected layer)
+    var title = this.element.insertBefore(ol.ext.element.create('DIV', { className: 'ol-title-bar' }), this.getPanel());
+    this.on('select', function (e) {
+      title.innerText = e.layer ? e.layer.get('title') : '';
+      this.element.setAttribute('data-layerClass', this.getLayerClass(e.layer));
+    }.bind(this));
+    // Top/bottom bar
+    this._topbar = this.element.insertBefore(ol.ext.element.create('DIV', {
+      className: 'ol-bar ol-top-bar'
+    }), this.getPanel());
+    this._bottombar = ol.ext.element.create('DIV', {
+      className: 'ol-bar ol-bottom-bar',
+      parent: this.element
+    });
+    this._controls = [];
+  }
+  /** Set the map instance the control is associated with.
+   * @param {_ol_Map_} map The map instance.
+   */
+  setMap(map) {
+    if (this.getMap()) {
+      // Remove map controls
+      this._controls.forEach(function (c) {
+        this.getMap().removeControl(c);
+      }.bind(this));
+    }
+    super.setMap(map);
+    if (map) {
+      // Select first layer
+      this.selectLayer();
+      // Remove a layer
+      this._listener.removeLayer = map.getLayers().on('remove', function (e) {
+        // Select first layer
+        if (e.element === this.getSelection()) {
+          this.selectLayer();
+        }
+      }.bind(this));
+      // Add controls
+      this._controls.forEach(function (c) {
+        this.getMap().addControl(c);
+      }.bind(this));
+    }
+  }
+  /** Get the bar element (to add new element in it)
+   * @param {string} [position='top'] bar position bottom or top, default top
+   * @returns {Element}
+   */
+  getBarElement(position) {
+    return position === 'bottom' ? this._bottombar : this._topbar;
+  }
+  /** Add a control to the panel
+   * @param {ol.control.Control} control
+   * @param {string} [position='top'] bar position bottom or top, default top
+   */
+  addControl(control, position) {
+    this._controls.push(control);
+    control.setTarget(position === 'bottom' ? this._bottombar : this._topbar);
+    if (this.getMap()) {
+      this.getMap().addControl(control);
+    }
+  }
+}
+
 /*	Copyright (c) 2016 Jean-Marc VIGLINO, 
 	released under the CeCILL-B license (French BSD license)
 	(http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt).
@@ -14453,758 +15638,6 @@ ol.control.PrintDialog2x = class olcontrolPrintDialog2x extends ol.control.Print
     return false
   }
 }
-
-/*	Copyright (c) 2016 Jean-Marc VIGLINO, 
-  released under the CeCILL-B license (French BSD license)
-  (http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt).
-*/
-/*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
-/**
- * @classdesc OpenLayers 3 Profile Control.
- * Draw a profile of a feature (with a 3D geometry)
- *
- * @constructor
- * @extends {ol.control.Control}
- * @fires over
- * @fires out
- * @fires show
- * @fires dragstart
- * @fires dragging
- * @fires dragend
- * @fires dragcancel
- * @param {Object=} options
- *  @param {string} options.className
- *	@param {String} options.title button title
- *  @param {ol.style.Style} [options.style] style to draw the profile, default darkblue
- *  @param {ol.style.Style} [options.selectStyle] style for selection, default darkblue fill
- *  @param {*} options.info keys/values for i19n
- *  @param {number} [options.width=300]
- *  @param {number} [options.height=150]
- *  @param {ol.Feature} [options.feature] the feature to draw profile
- *  @param {boolean} [options.selectable=false] enable selection on the profile, default false
- *  @param {boolean} [options.zoomable=false] can zoom in the profile
- */
-ol.control.Profile = class olcontrolProfile extends ol.control.Control {
-  constructor(options) {
-    options = options || {}
-    var element = document.createElement('div')
-    super({
-      element: element,
-      target: options.target
-    })
-    var self = this
-    this.info = options.info || ol.control.Profile.prototype.info
-    if (options.target) {
-      element.classList.add(options.className || 'ol-profile')
-    } else {
-      element.className = ((options.className || 'ol-profile') + ' ol-unselectable ol-control ol-collapsed').trim()
-      this.button = document.createElement('button')
-      this.button.title = options.title || 'Profile';
-      this.button.setAttribute('type', 'button')
-      var click_touchstart_function = function (e) {
-        self.toggle()
-        e.preventDefault()
-      }
-      this.button.addEventListener('click', click_touchstart_function)
-      this.button.addEventListener('touchstart', click_touchstart_function)
-      element.appendChild(this.button)
-      ol.ext.element.create('I', { parent: this.button })
-    }
-    // Drawing style
-    if (options.style instanceof ol.style.Style) {
-      this._style = options.style
-    } else {
-      this._style = new ol.style.Style({
-        text: new ol.style.Text(),
-        stroke: new ol.style.Stroke({
-          width: 1.5,
-          color: '#369'
-        })
-      })
-    }
-    if (!this._style.getText()) this._style.setText(new ol.style.Text())
-    // Selection style
-    if (options.selectStyle instanceof ol.style.Style) {
-      this._selectStyle = options.selectStyle
-    } else {
-      this._selectStyle = new ol.style.Style({
-        fill: new ol.style.Fill({ color: '#369' })
-      })
-    }
-    var div_inner = document.createElement("div")
-    div_inner.classList.add("ol-inner")
-    element.appendChild(div_inner)
-    var div = document.createElement("div")
-    div.style.position = "relative"
-    div_inner.appendChild(div)
-    var ratio = this.ratio = 2
-    this.canvas_ = document.createElement('canvas')
-    this.canvas_.width = (options.width || 300) * ratio
-    this.canvas_.height = (options.height || 150) * ratio
-    var styles = {
-      "msTransform": "scale(0.5,0.5)", "msTransformOrigin": "0 0",
-      "webkitTransform": "scale(0.5,0.5)", "webkitTransformOrigin": "0 0",
-      "mozTransform": "scale(0.5,0.5)", "mozTransformOrigin": "0 0",
-      "transform": "scale(0.5,0.5)", "transformOrigin": "0 0"
-    }
-    Object.keys(styles).forEach(function (style) {
-      if (style in self.canvas_.style) {
-        self.canvas_.style[style] = styles[style]
-      }
-    })
-    var div_to_canvas = document.createElement("div")
-    div.appendChild(div_to_canvas)
-    div_to_canvas.style.width = this.canvas_.width / ratio + "px"
-    div_to_canvas.style.height = this.canvas_.height / ratio + "px"
-    div_to_canvas.appendChild(this.canvas_)
-    div_to_canvas.addEventListener('pointerdown', this.onMove.bind(this))
-    document.addEventListener('pointerup', this.onMove.bind(this))
-    div_to_canvas.addEventListener('mousemove', this.onMove.bind(this))
-    div_to_canvas.addEventListener('touchmove', this.onMove.bind(this))
-    this.set('selectable', options.selectable)
-    // Offset in px
-    this.margin_ = { top: 10 * ratio, left: 45 * ratio, bottom: 30 * ratio, right: 10 * ratio }
-    if (!this.info.ytitle)
-      this.margin_.left -= 20 * ratio
-    if (!this.info.xtitle)
-      this.margin_.bottom -= 20 * ratio
-    // Cursor
-    this.bar_ = document.createElement("div")
-    this.bar_.classList.add("ol-profilebar")
-    this.bar_.style.top = (this.margin_.top / ratio) + "px"
-    this.bar_.style.height = (this.canvas_.height - this.margin_.top - this.margin_.bottom) / ratio + "px"
-    div.appendChild(this.bar_)
-    this.cursor_ = document.createElement("div")
-    this.cursor_.classList.add("ol-profilecursor")
-    div.appendChild(this.cursor_)
-    this.popup_ = document.createElement("div")
-    this.popup_.classList.add("ol-profilepopup")
-    this.cursor_.appendChild(this.popup_)
-    // Track information
-    var t = document.createElement("table")
-    t.cellPadding = '0'
-    t.cellSpacing = '0'
-    t.style.clientWidth = this.canvas_.width / ratio + "px"
-    div.appendChild(t)
-    var firstTr = document.createElement("tr")
-    firstTr.classList.add("track-info")
-    t.appendChild(firstTr)
-    var div_zmin = document.createElement("td")
-    div_zmin.innerHTML = (this.info.zmin || "Zmin") + ': <span class="zmin">'
-    firstTr.appendChild(div_zmin)
-    var div_zmax = document.createElement("td")
-    div_zmax.innerHTML = (this.info.zmax || "Zmax") + ': <span class="zmax">'
-    firstTr.appendChild(div_zmax)
-    var div_distance = document.createElement("td")
-    div_distance.innerHTML = (this.info.distance || "Distance") + ': <span class="dist">'
-    firstTr.appendChild(div_distance)
-    var div_time = document.createElement("td")
-    div_time.innerHTML = (this.info.time || "Time") + ': <span class="time">'
-    firstTr.appendChild(div_time)
-    var secondTr = document.createElement("tr")
-    secondTr.classList.add("point-info")
-    t.appendChild(secondTr)
-    var div_altitude = document.createElement("td")
-    div_altitude.innerHTML = (this.info.altitude || "Altitude") + ': <span class="z">'
-    secondTr.appendChild(div_altitude)
-    var div_distance2 = document.createElement("td")
-    div_distance2.innerHTML = (this.info.distance || "Distance") + ': <span class="dist">'
-    secondTr.appendChild(div_distance2)
-    var div_time2 = document.createElement("td")
-    div_time2.innerHTML = (this.info.time || "Time") + ': <span class="time">'
-    secondTr.appendChild(div_time2)
-    // Array of data
-    this.tab_ = []
-    // Show feature
-    if (options.feature) {
-      this.setGeometry(options.feature)
-    }
-    // Zoom on profile
-    if (options.zoomable) {
-      this.set('selectable', true)
-      var start, geom
-      this.on('change:geometry', function () {
-        geom = null
-      })
-      this.on('dragstart', function (e) {
-        start = e.index
-      })
-      this.on('dragend', function (e) {
-        if (Math.abs(start - e.index) > 10) {
-          if (!geom) {
-            var bt = ol.ext.element.create('BUTTON', {
-              parent: element,
-              className: 'ol-zoom-out',
-              click: function (e) {
-                e.stopPropagation()
-                e.preventDefault()
-                if (geom) {
-                  this.dispatchEvent({ type: 'zoom' })
-                  this.setGeometry(geom, this._geometry[1])
-                }
-                element.removeChild(bt)
-              }.bind(this)
-            })
-          }
-          var saved = geom || this._geometry[0]
-          var g = new ol.geom.LineString(this.getSelection(start, e.index))
-          this.setGeometry(g, this._geometry[1])
-          geom = saved
-          this.dispatchEvent({ type: 'zoom', geometry: g, start: start, end: e.index })
-        }
-      }.bind(this))
-    }
-  }
-  /** Show popup info
-  * @param {string} info to display as a popup
-  * @api stable
-  */
-  popup(info) {
-    this.popup_.innerHTML = info
-  }
-  /** Show point on profile
-   * @param {*} p
-   * @param {number} dx
-   * @private
-   */
-  _drawAt(p, dx) {
-    if (p) {
-      this.cursor_.style.left = dx + "px"
-      this.cursor_.style.top = (this.canvas_.height - this.margin_.bottom + p[1] * this.scale_[1] + this.dy_) / this.ratio + "px"
-      this.cursor_.style.display = "block"
-      this.bar_.parentElement.classList.add("over")
-      this.bar_.style.left = dx + "px"
-      this.bar_.style.display = "block"
-      this.element.querySelector(".point-info .z").textContent = p[1] + this.info.altitudeUnits
-      this.element.querySelector(".point-info .dist").textContent = (p[0] / 1000).toFixed(1) + this.info.distanceUnitsKM
-      this.element.querySelector(".point-info .time").textContent = p[2]
-      if (dx > this.canvas_.width / this.ratio / 2)
-        this.popup_.classList.add('ol-left')
-      else
-        this.popup_.classList.remove('ol-left')
-    } else {
-      this.cursor_.style.display = "none"
-      this.bar_.style.display = 'none'
-      this.cursor_.style.display = 'none'
-      this.bar_.parentElement.classList.remove("over")
-    }
-  }
-  /** Show point at coordinate or a distance on the profile
-   * @param { ol.coordinates|number } where a coordinate or a distance from begining, if none it will hide the point
-   * @return { ol.coordinates } current point
-   */
-  showAt(where) {
-    var i, p, p0, d0 = Infinity
-    if (typeof (where) === 'undefined') {
-      if (this.bar_.parentElement.classList.contains("over")) {
-        // Remove it
-        this._drawAt()
-      }
-    } else if (where.length) {
-      // Look for closest the point
-      for (i = 1; p = this.tab_[i]; i++) {
-        var d = ol.coordinate.dist2d(p[3], where)
-        if (d < d0) {
-          p0 = p
-          d0 = d
-        }
-      }
-    } else {
-      for (i = 0; p = this.tab_[i]; i++) {
-        p0 = p
-        if (p[0] >= where) {
-          break
-        }
-      }
-    }
-    if (p0) {
-      var dx = (p0[0] * this.scale_[0] + this.margin_.left) / this.ratio
-      this._drawAt(p0, dx)
-      return p0[3]
-    }
-    return null
-  }
-  /** Show point at a time on the profile
-   * @param { Date|number } time a Date or a DateTime (in s) to show the profile on, if none it will hide the point
-   * @param { booelan } delta true if time is a delta from the start, default false
-   * @return { ol.coordinates } current point
-   */
-  showAtTime(time, delta) {
-    var i, p, p0
-    if (time instanceof Date) {
-      time = time.getTime() / 1000
-    } else if (delta) {
-      time += this.tab_[0][3][3]
-    }
-    if (typeof (time) === 'undefined') {
-      if (this.bar_.parentElement.classList.contains("over")) {
-        // Remove it
-        this._drawAt()
-      }
-    } else {
-      for (i = 0; p = this.tab_[i]; i++) {
-        p0 = p
-        if (p[3][3] >= time) {
-          break
-        }
-      }
-    }
-    if (p0) {
-      var dx = (p0[0] * this.scale_[0] + this.margin_.left) / this.ratio
-      this._drawAt(p0, dx)
-      return p0[3]
-    }
-    return null
-  }
-  /** Get the point at a given time on the profile
-   * @param { number } time time at which to show the point
-   * @return { ol.coordinates } current point
-   */
-  pointAtTime(time) {
-    var i, p
-    // Look for closest the point
-    for (i = 1; p = this.tab_[i]; i++) {
-      var t = p[3][3]
-      if (t >= time) {
-        // Previous one ?
-        var pt = this.tab_[i - 1][3]
-        if ((pt[3] + t) / 2 < time)
-          return pt
-        else
-          return p
-      }
-    }
-    return this.tab_[this.tab_.length - 1][3]
-  }
-  /** Mouse move over canvas
-   */
-  onMove(e) {
-    if (!this.tab_.length)
-      return
-    var box_canvas = this.canvas_.getBoundingClientRect()
-    var pos = {
-      top: box_canvas.top + window.pageYOffset - document.documentElement.clientTop,
-      left: box_canvas.left + window.pageXOffset - document.documentElement.clientLeft
-    }
-    var pageX = e.pageX
-      || (e.touches && e.touches.length && e.touches[0].pageX)
-      || (e.changedTouches && e.changedTouches.length && e.changedTouches[0].pageX)
-    var pageY = e.pageY
-      || (e.touches && e.touches.length && e.touches[0].pageY)
-      || (e.changedTouches && e.changedTouches.length && e.changedTouches[0].pageY)
-    var dx = pageX - pos.left
-    var dy = pageY - pos.top
-    var ratio = this.ratio
-    if (dx > this.margin_.left / ratio - 20 && dx < (this.canvas_.width - this.margin_.right) / ratio + 8
-      && dy > this.margin_.top / ratio && dy < (this.canvas_.height - this.margin_.bottom) / ratio) {
-      var d = (dx * ratio - this.margin_.left) / this.scale_[0]
-      var p0 = this.tab_[0]
-      var index, p
-      for (index = 1; p = this.tab_[index]; index++) {
-        if (p[0] >= d) {
-          if (d < (p[0] + p0[0]) / 2) {
-            index = 0
-            p = p0
-          }
-          break
-        }
-      }
-      if (!p)
-        p = this.tab_[this.tab_.length - 1]
-      dx = Math.max(this.margin_.left / ratio, Math.min(dx, (this.canvas_.width - this.margin_.right) / ratio))
-      this._drawAt(p, dx)
-      this.dispatchEvent({ type: 'over', click: e.type === 'click', index: index, coord: p[3], time: p[2], distance: p[0] })
-      // Handle drag / click
-      switch (e.type) {
-        case 'pointerdown': {
-          this._dragging = {
-            event: { type: 'dragstart', index: index, coord: p[3], time: p[2], distance: p[0] },
-            pageX: pageX,
-            pageY: pageY
-          }
-          break
-        }
-        case 'pointerup': {
-          if (this._dragging && this._dragging.pageX) {
-            if (Math.abs(this._dragging.pageX - pageX) < 3 && Math.abs(this._dragging.pageY - pageY) < 3) {
-              this.dispatchEvent({ type: 'click', index: index, coord: p[3], time: p[2], distance: p[0] })
-              this.refresh()
-            }
-          } else {
-            this.dispatchEvent({ type: 'dragend', index: index, coord: p[3], time: p[2], distance: p[0] })
-          }
-          this._dragging = false
-          break
-        }
-        default: {
-          if (this._dragging) {
-            if (this._dragging.pageX) {
-              if (Math.abs(this._dragging.pageX - pageX) > 3 || Math.abs(this._dragging.pageY - pageY) > 3) {
-                this._dragging.pageX = this._dragging.pageY = false
-                this.dispatchEvent(this._dragging.event)
-              }
-            } else {
-              this.dispatchEvent({ type: 'dragging', index: index, coord: p[3], time: p[2], distance: p[0] })
-              var min = Math.min(this._dragging.event.index, index)
-              var max = Math.max(this._dragging.event.index, index)
-              this.refresh()
-              if (this.get('selectable'))
-                this._drawGraph(this.tab_.slice(min, max), this._selectStyle)
-            }
-          }
-          break
-        }
-      }
-    } else {
-      if (this.bar_.parentElement.classList.contains('over')) {
-        this._drawAt()
-        this.dispatchEvent({ type: 'out' })
-      }
-      if (e.type === 'pointerup' && this._dragging) {
-        this.dispatchEvent({ type: 'dragcancel' })
-        this._dragging = false
-      }
-    }
-  }
-  /** Show panel
-  * @api stable
-  */
-  show() {
-    this.element.classList.remove("ol-collapsed")
-    this.dispatchEvent({ type: 'show', show: true })
-  }
-  /** Hide panel
-  * @api stable
-  */
-  hide() {
-    this.element.classList.add("ol-collapsed")
-    this.dispatchEvent({ type: 'show', show: false })
-  }
-  /** Toggle panel
-  * @api stable
-  */
-  toggle() {
-    this.element.classList.toggle("ol-collapsed")
-    var b = this.element.classList.contains("ol-collapsed")
-    this.dispatchEvent({ type: 'show', show: !b })
-  }
-  /** Is panel visible
-  */
-  isShown() {
-    return (!this.element.classList.contains("ol-collapsed"))
-  }
-  /** Get selection
-   * @param {number} starting point
-   * @param {number} ending point
-   * @return {Array<ol.coordinate>}
-   */
-  getSelection(start, end) {
-    var sel = []
-    var min = Math.max(Math.min(start, end), 0)
-    var max = Math.min(Math.max(start, end), this.tab_.length - 1)
-    for (var i = min; i <= max; i++) {
-      sel.push(this.tab_[i][3])
-    }
-    return sel
-  }
-  /** Draw the graph
-   * @private
-   */
-  _drawGraph(t, style) {
-    if (!t.length)
-      return
-    var ctx = this.canvas_.getContext('2d')
-    var scx = this.scale_[0]
-    var scy = this.scale_[1]
-    var dy = this.dy_
-    var ratio = this.ratio
-    var i, p
-    // Draw Path
-    ctx.beginPath()
-    for (i = 0; p = t[i]; i++) {
-      if (i == 0)
-        ctx.moveTo(p[0] * scx, p[1] * scy + dy)
-      else
-        ctx.lineTo(p[0] * scx, p[1] * scy + dy)
-    }
-    if (style.getStroke()) {
-      ctx.strokeStyle = style.getStroke().getColor() || '#000'
-      ctx.lineWidth = style.getStroke().getWidth() * ratio
-      ctx.setLineDash([])
-      ctx.stroke()
-    }
-    // Fill path
-    if (style.getFill()) {
-      ctx.fillStyle = style.getFill().getColor() || '#000'
-      ctx.Style = style.getFill().getColor() || '#000'
-      ctx.lineTo(t[t.length - 1][0] * scx, 0)
-      ctx.lineTo(t[0][0] * scx, 0)
-      ctx.fill()
-    }
-  }
-  /**
-   * Set the geometry to draw the profile.
-   * @param {ol.Feature|ol.geom.Geometry} f the feature.
-   * @param {Object=} options
-   *  @param {ol.ProjectionLike} [options.projection] feature projection, default projection of the map
-   *  @param {string} [options.zunit='m'] 'm' or 'km', default m
-   *  @param {string} [options.unit='km'] 'm' or 'km', default km
-   *  @param {Number|undefined} [options.zmin=0] default 0
-   *  @param {Number|undefined} options.zmax default max Z of the feature
-   *  @param {integer|undefined} [options.zDigits=0] number of digits for z graduation, default 0
-   *  @param {integer|undefined} [options.zMaxChars] maximum number of chars to be used for z graduation before switching to scientific notation
-   *  @param {Number|undefined} [options.graduation=100] z graduation default 100
-   *  @param {integer|undefined} [options.amplitude] amplitude of the altitude, default zmax-zmin
-   * @api stable
-   */
-  setGeometry(g, options) {
-    if (!options)
-      options = {}
-    if (g instanceof ol.Feature)
-      g = g.getGeometry()
-    this._geometry = [g, options]
-    // No Z
-    if (!/Z/.test(g.getLayout()))
-      return
-    // No time
-    if (/M/.test(g.getLayout()))
-      this.element.querySelector(".time").parentElement.style.display = 'block'
-    else
-      this.element.querySelector(".time").parentElement.style.display = 'none'
-    // Coords
-    var c = g.getCoordinates()
-    switch (g.getType()) {
-      case "LineString": break
-      case "MultiLineString": c = c[0]; break
-      default: return
-    }
-    // Distance beetween 2 coords
-    var proj = options.projection || this.getMap().getView().getProjection()
-    function dist2d(p1, p2) {
-      return ol.sphere.getDistance(
-        ol.proj.transform(p1, proj, 'EPSG:4326'),
-        ol.proj.transform(p2, proj, 'EPSG:4326')
-      )
-    }
-    function getTime(t0, t1) {
-      if (!t0 || !t1)
-        return "-"
-      var dt = (t1 - t0) / 60 // mn
-      var ti = Math.trunc(dt / 60)
-      var mn = Math.trunc(dt - ti * 60)
-      return ti + "h" + (mn < 10 ? "0" : "") + mn + "mn"
-    }
-    // Calculate [distance, altitude, time, point] for each points
-    var zmin = Infinity, zmax = -Infinity
-    var i, p, d, z, ti, t = this.tab_ = []
-    for (i = 0, p; p = c[i]; i++) {
-      z = p[2]
-      if (z < zmin)
-        zmin = z
-      if (z > zmax)
-        zmax = z
-      if (i == 0)
-        d = 0
-      else
-        d += dist2d(c[i - 1], p)
-      ti = getTime(c[0][3], p[3])
-      t.push([d, z, ti, p])
-    }
-    this._z = [zmin, zmax]
-    this.set('graduation', options.graduation || 100)
-    this.set('zmin', options.zmin)
-    this.set('zmax', options.zmax)
-    this.set('amplitude', options.amplitude)
-    this.set('unit', options.unit)
-    this.set('zunit', options.zunit)
-    this.set('zDigits', options.zDigits)
-    this.set('zMaxChars', options.zMaxChars)
-    this.dispatchEvent({ type: 'change:geometry', geometry: g })
-    this.refresh()
-  }
-  /** Refresh the profile
-   */
-  refresh() {
-    var canvas = this.canvas_
-    var ctx = canvas.getContext('2d')
-    var w = canvas.width
-    var h = canvas.height
-    ctx.setTransform(1, 0, 0, 1, 0, 0)
-    ctx.clearRect(0, 0, w, h)
-    var zmin = this._z[0]
-    var zmax = this._z[1]
-    var t = this.tab_
-    var d = t[t.length - 1][0]
-    var ti = t[t.length - 1][2]
-    var i
-    if (!d) {
-      console.error('[ol/control/Profile] no data...', t)
-      return
-    }
-    // Margin
-    ctx.setTransform(1, 0, 0, 1, this.margin_.left, h - this.margin_.bottom)
-    var ratio = this.ratio
-    w -= this.margin_.right + this.margin_.left
-    h -= this.margin_.top + this.margin_.bottom
-    // Draw axes
-    ctx.strokeStyle = this._style.getText().getFill().getColor() || '#000'
-    ctx.lineWidth = 0.5 * ratio
-    ctx.beginPath()
-    ctx.moveTo(0, 0); ctx.lineTo(0, -h)
-    ctx.moveTo(0, 0); ctx.lineTo(w, 0)
-    ctx.stroke()
-    // Info
-    this.element.querySelector(".track-info .zmin").textContent = zmin.toFixed(2) + this.info.altitudeUnits
-    this.element.querySelector(".track-info .zmax").textContent = zmax.toFixed(2) + this.info.altitudeUnits
-    if (d > 1000) {
-      this.element.querySelector(".track-info .dist").textContent = (d / 1000).toFixed(1) + this.info.distanceUnitsKM
-    } else {
-      this.element.querySelector(".track-info .dist").textContent = (d).toFixed(1) + this.info.distanceUnitsM
-    }
-    this.element.querySelector(".track-info .time").textContent = ti
-    // Set graduation
-    var grad = this.get('graduation')
-    while (true) {
-      zmax = Math.ceil(zmax / grad) * grad
-      zmin = Math.floor(zmin / grad) * grad
-      var nbgrad = (zmax - zmin) / grad
-      if (h / nbgrad < 15 * ratio) {
-        grad *= 2
-      }
-      else
-        break
-    }
-    // Set amplitude
-    if (typeof (this.get('zmin')) == 'number' && zmin > this.get('zmin'))
-      zmin = this.get('zmin')
-    if (typeof (this.get('zmax')) == 'number' && zmax < this.get('zmax'))
-      zmax = this.get('zmax')
-    var amplitude = this.get('amplitude')
-    if (amplitude) {
-      zmax = Math.max(zmin + amplitude, zmax)
-    }
-    // Scales lines
-    var scx = w / d
-    var scy = -h / (zmax - zmin)
-    var dy = this.dy_ = -zmin * scy
-    this.scale_ = [scx, scy]
-    this._drawGraph(t, this._style)
-    // Draw 
-    ctx.textAlign = 'right'
-    ctx.textBaseline = 'top'
-    ctx.fillStyle = this._style.getText().getFill().getColor() || '#000'
-    // Scale Z
-    ctx.beginPath()
-    var fix = this.get('zDigits') || 0
-    var exp = null
-    if (typeof (this.get('zMaxChars')) == 'number') {
-      var usedChars
-      if (this.get('zunit') != 'km')
-        usedChars = Math.max(zmin.toFixed(fix).length, zmax.toFixed(fix).length)
-      else
-        usedChars = Math.max((zmin / 1000).toFixed(1).length, (zmax / 1000).toFixed(1).length)
-      if (this.get('zMaxChars') < usedChars) {
-        exp = Math.floor(Math.log10(Math.max(Math.abs(zmin), Math.abs(zmax), Number.MIN_VALUE)))
-        ctx.font = 'bold ' + (9 * ratio) + 'px arial'
-        ctx.fillText(exp.toString(), -8 * ratio, 8 * ratio)
-        var expMetrics = ctx.measureText(exp.toString())
-        var expWidth = expMetrics.width
-        var expHeight = expMetrics.actualBoundingBoxAscent + expMetrics.actualBoundingBoxDescent
-        ctx.font = 'bold ' + (12 * ratio) + 'px arial'
-        ctx.fillText("10", -8 * ratio - expWidth, 8 * ratio + 0.5 * expHeight)
-      }
-    }
-    ctx.font = (10 * ratio) + 'px arial'
-    ctx.textBaseline = 'middle'
-    for (i = zmin; i <= zmax; i += grad) {
-      if (exp !== null) {
-        var baseNumber = i / Math.pow(10, exp)
-        if (this.get('zunit') == 'km')
-          baseNumber /= 1000
-        var nbDigits = this.get('zMaxChars') - Math.floor(Math.log10(Math.max(Math.abs(baseNumber), 1)) + 1) - 1
-        if (baseNumber < 0)
-          nbDigits -= 1
-        if (this.get('zunit') != 'km')
-          ctx.fillText(baseNumber.toFixed(Math.max(nbDigits, 0)), -4 * ratio, i * scy + dy)
-        else
-          ctx.fillText(baseNumber.toFixed(Math.max(nbDigits, 0)), -4 * ratio, i * scy + dy)
-      } else {
-        if (this.get('zunit') != 'km')
-          ctx.fillText(i.toFixed(fix), -4 * ratio, i * scy + dy)
-        else
-          ctx.fillText((i / 1000).toFixed(1), -4 * ratio, i * scy + dy)
-      }
-      ctx.moveTo(-2 * ratio, i * scy + dy)
-      if (i != 0)
-        ctx.lineTo(d * scx, i * scy + dy)
-      else
-        ctx.lineTo(0, i * scy + dy)
-    }
-    // Scale X
-    ctx.textAlign = "center"
-    ctx.textBaseline = "top"
-    ctx.setLineDash([ratio, 3 * ratio])
-    var unit = this.get('unit') || "km"
-    var step
-    if (d > 1000) {
-      step = Math.round(d / 1000) * 100
-      if (step > 1000)
-        step = Math.ceil(step / 1000) * 1000
-    } else {
-      unit = "m"
-      if (d > 100)
-        step = Math.round(d / 100) * 10
-      else if (d > 10)
-        step = Math.round(d / 10)
-      else if (d > 1)
-        step = Math.round(d) / 10
-      else
-        step = d
-    }
-    for (i = 0; i <= d; i += step) {
-      var txt = (unit == "m") ? i : (i / 1000)
-      //if (i+step>d) txt += " "+ (options.zunits || "km");
-      ctx.fillText(Math.round(txt * 10) / 10, i * scx, 4 * ratio)
-      ctx.moveTo(i * scx, 2 * ratio); ctx.lineTo(i * scx, 0)
-    }
-    ctx.font = (12 * ratio) + "px arial"
-    ctx.fillText(this.info.xtitle.replace("(km)", "(" + unit + ")"), w / 2, 18 * ratio)
-    ctx.save()
-    ctx.rotate(-Math.PI / 2)
-    ctx.fillText(this.info.ytitle, h / 2, -this.margin_.left)
-    ctx.restore()
-    ctx.stroke()
-  }
-  /** Get profile image
-  * @param {string|undefined} type image format or 'canvas' to get the canvas image, default image/png.
-  * @param {Number|undefined} encoderOptions between 0 and 1 indicating image quality image/jpeg or image/webp, default 0.92.
-  * @return {string} requested data uri
-  * @api stable
-  */
-  getImage(type, encoderOptions) {
-    if (type === "canvas")
-      return this.canvas_
-    return this.canvas_.toDataURL(type, encoderOptions)
-  }
-}
-/** Custom infos list
-* @api stable
-*/
-ol.control.Profile.prototype.info = {
-  "zmin": "Zmin",
-  "zmax": "Zmax",
-  "ytitle": "Altitude (m)",
-  "xtitle": "Distance (km)",
-  "time": "Time",
-  "altitude": "Altitude",
-  "distance": "Distance",
-  "altitudeUnits": "m",
-  "distanceUnitsM": "m",
-  "distanceUnitsKM": "km",
-};
-// For backward compatibility
-// eslint-disable-next-line no-unused-vars
-ol.control.Profil = ol.control.Profile;
 
 /*	Copyright (c) 2016 Jean-Marc VIGLINO, 
   released under the CeCILL-B license (French BSD license)

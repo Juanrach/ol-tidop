@@ -130,7 +130,7 @@ gulp.task("js", function() {
     "./src/ext/*.js",
     "./src/legend/Legend.js","./src/legend/*.js",
     "./src/control/CanvasBase.js","./src/control/SelectBase.js","./src/control/Button.js","./src/control/Toggle.js","./src/control/Search.js","./src/control/SearchJSON.js","./src/control/SearchPhoton.js","./src/control/SearchGeoportail.js",
-    "./src/control/LayerSwitcher.js", "./src/control/*.js", 
+    "./src/control/LayerSwitcher.js","./src/control/LayerSwitcherTidop.js", "./src/control/*.js",
     "!./src/control/PirateMap.js", "!./src/control/Cloud.js",
     "./src/featureanimation/FeatureAnimation.js", "./src/featureanimation/*.js",
     "./src/filter/Base.js", "./src/filter/Mask.js", "./src/filter/*.js",
